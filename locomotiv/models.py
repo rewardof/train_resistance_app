@@ -16,7 +16,13 @@ class Locomotiv(models.Model):
     value_aox = models.DecimalField("aox qiymati", max_digits=10, decimal_places=5)
     value_box = models.DecimalField("box qiymati", max_digits=10, decimal_places=5)
     value_cox = models.DecimalField("cox qiymati", max_digits=10, decimal_places=5)
+    is_active = models.BooleanField("Faol", default=True)
+    created_at = models.DateTimeField("Yaratilgan vaqt", auto_now_add=True)
+    updated_at = models.DateTimeField("Tahrirlangan vaqt", auto_now=True)
 
     class Meta:
         verbose_name = "Lokomotiv Turi"
         verbose_name_plural = "Lokomotiv Turlari"
+
+    def __str__(self):
+        return f"{self.locomotiv_name}, {self.locomotiv_seria}-{self.locomotiv_number}"

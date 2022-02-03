@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import generics, status
 
 from locomotiv.models import Locomotiv
-from locomotiv.serializers import NumberSerializer
+from locomotiv.serializers import NumberSerializer, LocomotivSerializer
 
 import requests
 from rest_framework.views import APIView
@@ -524,3 +524,27 @@ class VagonDataListView(generics.ListCreateAPIView):
         }
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+class LocomotivListListView(generics.ListAPIView):
+    queryset = Locomotiv.objects.all()
+    serializer_class = LocomotivSerializer
+    filter_fields = ['locomotiv_name']
+    search_fields = ['locomotiv_name']
+
+    def get_queryset(self):
+        return self.queryset.all()
+    
+    def filter_queryset(self, queryset):
+        return super(LocomotivListListView, self).filter_queryset(queryset)
+
+
+class CalculateResultView(generics.ListAPIView):
+    queryset = Locomotiv.objects.filter(is_active=True)
+    serializer_class = LocomotivSerializer
+
+    def get(self, *args, **kwargs):
+        return Response("OK")
+
+
+
