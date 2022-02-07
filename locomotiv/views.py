@@ -1,23 +1,27 @@
-from django.shortcuts import render
+from django.core.files import File
 from rest_framework.response import Response
 from rest_framework import generics, status
 
-from locomotiv.models import Locomotiv
-from locomotiv.serializers import NumberSerializer, LocomotivSerializer
+from locomotiv.models import Locomotiv, TotalDataVagon, VagonResistanceConstant, Excel
+from locomotiv.serializers import NumberSerializer, LocomotivSerializer, TotalDataSerializer, InputDataSerializer, \
+    ExcelSerializer
+from locomotiv.utils import resistance_export_excel
 
-import requests
-from rest_framework.views import APIView
 
-
-class VagonDataListView(generics.ListCreateAPIView):
+class VagonDataListView(generics.CreateAPIView):
     queryset = Locomotiv.objects.all()
     serializer_class = NumberSerializer
 
+    def get(self, *args, **kwargs):
+        queryset = TotalDataVagon.objects.all()
+        serializer = TotalDataSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, *args, **kwargs):
-        serializer = self.get_serializer(data=self.request.POST)
+        serializer = NumberSerializer(data=self.request.POST)
         serializer.is_valid(raise_exception=True)
-        number = serializer.validated_data['number']
-        print(serializer.validated_data)
+        number = serializer.data['number']
+        load_weight = serializer.validated_data['load_weight']
         first = int(number[:1])
         second = int(number[1:2])
         third = int(number[2:3])
@@ -517,34 +521,111 @@ class VagonDataListView(generics.ListCreateAPIView):
                 number_of_arrow = 8
                 netto_vagon = 54.4
                 length_vagon = 23.4
-        data = {
-            "number_of_arrow": number_of_arrow,
-            "netto_vagon": netto_vagon,
-            "length_vagon": length_vagon
+        input_data = {
+            'number_of_arrow': number_of_arrow,
+            'netto_vagon': netto_vagon,
+            'length_vagon': length_vagon
         }
+        input_serializer = InputDataSerializer(data=input_data)
+        input_serializer.is_valid(raise_exception=True)
+        total_weight = round(load_weight + input_serializer.validated_data['netto_vagon'], 2)
+        bullet_weight = total_weight / input_serializer.validated_data['number_of_arrow']
+        data = {
+            "number_vagon": number,
+            "number_of_arrow": input_serializer.validated_data['number_of_arrow'],
+            "netto_vagon": input_serializer.validated_data['netto_vagon'],
+            "total_weight": total_weight,
+            "length_vagon": input_serializer.validated_data['length_vagon'],
+            "bullet_weight": round(bullet_weight, 2)
+        }
+        serializer = TotalDataSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class LocomotivListListView(generics.ListAPIView):
     queryset = Locomotiv.objects.all()
     serializer_class = LocomotivSerializer
-    filter_fields = ['locomotiv_name']
-    search_fields = ['locomotiv_name']
-
-    def get_queryset(self):
-        return self.queryset.all()
-    
-    def filter_queryset(self, queryset):
-        return super(LocomotivListListView, self).filter_queryset(queryset)
+    search_fields = ['locomotiv_name', ]
 
 
 class CalculateResultView(generics.ListAPIView):
     queryset = Locomotiv.objects.filter(is_active=True)
     serializer_class = LocomotivSerializer
 
-    def get(self, *args, **kwargs):
-        return Response("OK")
 
+    def get(self, *args, **kwargs):
+        locomotiv = Locomotiv.objects.get(id=self.kwargs['locomotiv_id'])
+        result = []
+        for capacity in range(61):
+
+            locomotiv_traction_mode = 9.81 * (locomotiv.value_ao + locomotiv.value_bo * capacity +
+                                                         locomotiv.value_co * capacity * capacity)
+            locomotiv_idle_mode = 9.81 * (locomotiv.value_aox + locomotiv.value_box * capacity +
+                                                         locomotiv.value_cox * capacity * capacity)
+
+            # vagons data
+            cons_values = VagonResistanceConstant.objects.first()
+
+            sum_resistance = 0
+            sum_brutto_vagon = 0
+            for vagon in TotalDataVagon.objects.all():
+                if vagon.bullet_weight > 6 and vagon.number_of_arrow == 4:
+                    vagon_resistance = 9.81 * (0.7 + round((cons_values.value_ao + cons_values.value_bo * capacity +
+                                              cons_values.value_co * capacity * capacity) / vagon.bullet_weight, 2))
+                elif vagon.bullet_weight > 6 and vagon.number_of_arrow == 8:
+                    vagon_resistance = 9.81 * (0.7 + round((cons_values.value_aox + cons_values.value_box * capacity +
+                                              cons_values.value_cox * capacity * capacity) / vagon.bullet_weight, 2))
+                else:
+                    vagon_resistance = round(
+                        (9.81 * (cons_values.value_ax + cons_values.value_bx * capacity +
+                         cons_values.value_cx * capacity * capacity)) / vagon.bullet_weight, 2)
+                sum_resistance += vagon_resistance * vagon.total_weight
+                sum_brutto_vagon += vagon.total_weight
+
+            total_resistance_vagon = round(sum_resistance / sum_brutto_vagon, 2)
+
+            total_resistance_traction = locomotiv_traction_mode + total_resistance_vagon
+            total_resistance_idle = locomotiv_idle_mode + total_resistance_vagon
+
+            data = {
+                'capacity': capacity,
+                "locomotiv_traction_mode": round(locomotiv_traction_mode, 2),
+                'locomotiv_idle_mode': round(locomotiv_idle_mode, 2),
+                'total_resistance_vagon': round(total_resistance_vagon, 2),
+                'total_resistance_traction': round(total_resistance_traction, 2),
+                'total_resistance_idle': round(total_resistance_idle, 2)
+            }
+            result.append(data)
+        excel = resistance_export_excel(result)
+        return Response(result, status=status.HTTP_200_OK)
+
+
+class VagonDataList(generics.ListAPIView):
+    queryset = TotalDataVagon.objects.all()
+    serializer_class = TotalDataSerializer
+
+
+class DeleteVagonsData(generics.DestroyAPIView):
+    queryset = TotalDataVagon.objects.all()
+    serializer_class = TotalDataSerializer
+
+    def delete(self, request, *args, **kwargs):
+        TotalDataVagon.objects.all().delete()
+        return Response({"success_message": "Muvaffaqiyatli o'chirildi!!!"})
+
+
+class ResistanceFileDownload(generics.RetrieveAPIView):
+    queryset = Excel.objects.all()
+    serializer_class = ExcelSerializer
+
+    def get_object(self):
+        return self.get_queryset().last()
+
+    def retrieve(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_object())
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
