@@ -17,7 +17,7 @@ class Locomotiv(models.Model):
     value_aox = models.FloatField("aox qiymati")
     value_box = models.FloatField("box qiymati")
     value_cox = models.FloatField("cox qiymati")
-    is_active = models.FloatField("Faol", default=True)
+    is_active = models.BooleanField("Faol", default=True)
     created_at = models.DateTimeField("Yaratilgan vaqt", auto_now_add=True)
     updated_at = models.DateTimeField("Tahrirlangan vaqt", auto_now=True)
 
