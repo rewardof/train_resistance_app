@@ -12,5 +12,5 @@ urlpatterns = [
     path('vagons-list/', views.VagonDataList.as_view(), name='vagons-list'),
     path('delete-vagons-data/', views.DeleteVagonsData.as_view(), name='delete-vagons-data'),
     path('export-vagons-data/', vagon_data_excel, name='export-vagons-data'),
-    path('export-resistance-data/', views.ResistanceFileDownload.as_view(), name='export-resistance-data'),
+    path('export-resistance-data/', views.resistance_export_excel, name='export-resistance-data'),
 ]

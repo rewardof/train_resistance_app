@@ -1,9 +1,8 @@
 from rest_framework.response import Response
 from rest_framework import generics, status
 
-from locomotiv.models import Locomotiv, TotalDataVagon, VagonResistanceConstant, Excel
-from locomotiv.serializers import NumberSerializer, LocomotivSerializer, TotalDataSerializer, InputDataSerializer, \
-    ExcelSerializer
+from locomotiv.models import Locomotiv, TotalDataVagon, VagonResistanceConstant, TrainResistanceData
+from locomotiv.serializers import NumberSerializer, LocomotivSerializer, TotalDataSerializer, InputDataSerializer
 from locomotiv.utils import resistance_export_excel
 
 
@@ -554,9 +553,11 @@ class CalculateResultView(generics.ListAPIView):
     queryset = Locomotiv.objects.filter(is_active=True)
     serializer_class = LocomotivSerializer
 
-
     def get(self, *args, **kwargs):
-        locomotiv = Locomotiv.objects.get(id=self.kwargs['locomotiv_id'])
+        try:
+            locomotiv = Locomotiv.objects.get(id=self.kwargs['locomotiv_id'])
+        except:
+            return Response({"error_message": "Bu idli lokomotiv mavjud emas!!!"})
         result = []
         for capacity in range(61):
 
@@ -597,8 +598,8 @@ class CalculateResultView(generics.ListAPIView):
                 'total_resistance_traction': round(total_resistance_traction, 2),
                 'total_resistance_idle': round(total_resistance_idle, 2)
             }
+            TrainResistanceData.objects.create(**data)
             result.append(data)
-        excel = resistance_export_excel(result)
         return Response(result, status=status.HTTP_200_OK)
 
 
@@ -617,14 +618,6 @@ class DeleteVagonsData(generics.DestroyAPIView):
 
 
 class ResistanceFileDownload(generics.RetrieveAPIView):
-    queryset = Excel.objects.all()
-    serializer_class = ExcelSerializer
-
-    def get_object(self):
-        return self.get_queryset().last()
-
-    def retrieve(self, request, *args, **kwargs):
-        serializer = self.get_serializer(self.get_object())
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    pass
 
 

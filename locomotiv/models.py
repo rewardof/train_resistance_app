@@ -61,10 +61,18 @@ class VagonResistanceConstant(models.Model):
         verbose_name_plural = "Vagon Qarshili uchun o'zgarmas qiymatlar"
 
 
-class Excel(models.Model):
-    file = models.FileField("Excel file", upload_to='files/')
+# class Excel(models.Model):
+#     file = models.FileField("Excel file", upload_to='files/')
+#
+#     class Meta:
+#         verbose_name = 'Excel file'
+#         verbose_name_plural = 'Excel filelar'
 
-    class Meta:
-        verbose_name = 'Excel file'
-        verbose_name_plural = 'Excel filelar'
 
+class TrainResistanceData(models.Model):
+    capacity = models.IntegerField()
+    locomotiv_traction_mode = models.FloatField()
+    locomotiv_idle_mode = models.FloatField()
+    total_resistance_vagon = models.FloatField()
+    total_resistance_traction = models.FloatField()
+    total_resistance_idle = models.FloatField()

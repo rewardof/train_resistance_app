@@ -1,19 +1,17 @@
-import random
-
 import xlwt
 from xlwt import Alignment, Pattern
 from django.http import HttpResponse
-from django.utils import timezone
 
-from locomotiv.models import Excel, TotalDataVagon
+from locomotiv.models import TotalDataVagon, TrainResistanceData
 
 
-def resistance_export_excel(data):
+def resistance_export_excel(request):
+    data = list(TrainResistanceData.objects.all())[-61:]
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="something.xls"'
+    response['Content-Disposition'] = 'attachment; filename="train_resistances.xls"'
 
     wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('User')
+    ws = wb.add_sheet('Umumiy Qarshiliklar')
     row_num = 0
 
     alignment = Alignment()
@@ -50,23 +48,12 @@ def resistance_export_excel(data):
 
     for instance in data:
         row_num += 1
-        ws.write(row_num, 0, instance["capacity"], font_style)
-        ws.write(row_num, 1, instance['locomotiv_traction_mode'], font_style)
-        ws.write(row_num, 2, instance['locomotiv_idle_mode'], font_style)
-        ws.write(row_num, 3, instance['total_resistance_vagon'], font_style)
-        ws.write(row_num, 4, instance['total_resistance_traction'], font_style)
-        ws.write(row_num, 5, instance['total_resistance_idle'], font_style)
-    number = random.randint(100000, 999999)
-    wb.save(f'media/files/{number}.xls')
-    instance = Excel.objects.create(file=f'files/{number}.xls')
-    return instance
-
-
-def export_excel(self, request, queryset):
-    response = HttpResponse(content_type="application/ms-excel")
-    response['Content-Disposition'] = 'attachment; filename=%s%s.xls' % (
-        'users-', timezone.now().strftime("%d-%m-%Y"))
-    wb = resistance_export_excel(queryset)
+        ws.write(row_num, 0, instance.capacity, font_style)
+        ws.write(row_num, 1, instance.locomotiv_traction_mode, font_style)
+        ws.write(row_num, 2, instance.locomotiv_idle_mode, font_style)
+        ws.write(row_num, 3, instance.total_resistance_vagon, font_style)
+        ws.write(row_num, 4, instance.total_resistance_traction, font_style)
+        ws.write(row_num, 5, instance.total_resistance_idle, font_style)
     wb.save(response)
     return response
 

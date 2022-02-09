@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.response import Response
 
-from locomotiv.models import Locomotiv, TotalDataVagon, Excel
+from locomotiv.models import Locomotiv, TotalDataVagon
 
 
 class NumberSerializer(serializers.Serializer):
@@ -54,8 +54,3 @@ class LocomotivSerializer(serializers.ModelSerializer):
         model = Locomotiv
         fields = ['id', 'locomotiv_name', 'locomotiv_seria', 'locomotiv_number', 'type_locomotiv']
 
-
-class ExcelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Excel
-        fields = ['file',]
