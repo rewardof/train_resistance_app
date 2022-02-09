@@ -10,10 +10,16 @@ class NumberSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         number = attrs['number']
+        load_weight = attrs['load_weight']
         if not len(number) == 8:
             raise serializers.ValidationError({"error_message": "Iltimos 8 xonali son kiriting!!!"})
         if not number.isnumeric():
             raise serializers.ValidationError({"error_message": "Iltimos raqam kiriting!!!"})
+        if load_weight < 0:
+            raise serializers.ValidationError({"error_message": "Yuk og'irligi manfiy bo'la olmaydi!!!"})
+        if load_weight > 100:
+            raise serializers.ValidationError({"error_message": "Yuk og'irligi 100 t dan ortiq bo'la olmaydi!!!"})
+
         sum = 0
         for num in number:
             if int(num) % 2 == 1:

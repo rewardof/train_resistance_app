@@ -557,7 +557,7 @@ class CalculateResultView(generics.ListAPIView):
         try:
             locomotiv = Locomotiv.objects.get(id=self.kwargs['locomotiv_id'])
         except:
-            return Response({"error_message": "Bu idli lokomotiv mavjud emas!!!"})
+            return Response({"error_message": "Bu idli lokomotiv mavjud emas!!!"}, status=status.HTTP_400_BAD_REQUEST)
         result = []
         for capacity in range(61):
 
