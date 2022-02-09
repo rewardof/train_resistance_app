@@ -1,10 +1,7 @@
 import random
-from io import BytesIO
 
 import xlwt
-from xlwt import Alignment, Pattern, Borders
-from django.core.files import File
-from django.core.files.base import ContentFile
+from xlwt import Alignment, Pattern
 from django.http import HttpResponse
 from django.utils import timezone
 
