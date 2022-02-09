@@ -614,6 +614,7 @@ class DeleteVagonsData(generics.DestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         TotalDataVagon.objects.all().delete()
+        TrainResistanceData.objects.all().delete()
         return Response({"success_message": "Muvaffaqiyatli o'chirildi!!!"})
 
 
