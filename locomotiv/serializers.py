@@ -11,15 +11,14 @@ class NumberSerializer(serializers.Serializer):
     def validate(self, attrs):
         number = attrs['number']
         load_weight = attrs['load_weight']
+        if load_weight < 0:
+            raise serializers.ValidationError({"error_message": "Yuk og'irligi manfiy bo'la olmaydi"})
+        if load_weight > 100:
+            raise serializers.ValidationError({"error_message": "Yuk og'irligi 100 t dan ortiq bo'la olmaydi"})
         if not len(number) == 8:
             raise serializers.ValidationError({"error_message": "Iltimos 8 xonali son kiriting!!!"})
         if not number.isnumeric():
             raise serializers.ValidationError({"error_message": "Iltimos raqam kiriting!!!"})
-        if load_weight < 0:
-            raise serializers.ValidationError({"error_message": "Yuk og'irligi manfiy bo'la olmaydi!!!"})
-        if load_weight > 100:
-            raise serializers.ValidationError({"error_message": "Yuk og'irligi 100 t dan ortiq bo'la olmaydi!!!"})
-
         sum = 0
         for num in number:
             if int(num) % 2 == 1:
@@ -33,17 +32,11 @@ class NumberSerializer(serializers.Serializer):
         return attrs
 
 
-class TotalDataSerializer(serializers.Serializer):
-    number_vagon = serializers.IntegerField()
-    number_of_arrow = serializers.IntegerField()
-    netto_vagon = serializers.FloatField()
-    length_vagon = serializers.FloatField()
-    total_weight = serializers.FloatField()
-    bullet_weight = serializers.FloatField()
+class TotalDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TotalDataVagon
-        fields = ['id', 'number_vagon', 'number_of_arrow', 'netto_vagon', 'length_vagon', 'total_weight', 'bullet_weight']
+        fields = ['id', 'number_vagon', 'load_weight', 'number_of_arrow', 'netto_vagon', 'length_vagon', 'total_weight', 'bullet_weight']
     
     def create(self, validated_data):
         return TotalDataVagon.objects.create(**validated_data)
