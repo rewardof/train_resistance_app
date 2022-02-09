@@ -578,13 +578,15 @@ class CalculateResultView(generics.ListAPIView):
                 if vagon.bullet_weight > 6 and vagon.number_of_arrow == 4:
                     vagon_resistance = 9.81 * (0.7 + round((cons_values.value_ao + cons_values.value_bo * capacity +
                                               cons_values.value_co * capacity * capacity) / vagon.bullet_weight, 2))
-                elif vagon.bullet_weight > 6 and vagon.number_of_arrow == 8:
-                    vagon_resistance = 9.81 * (0.7 + round((cons_values.value_aox + cons_values.value_box * capacity +
-                                              cons_values.value_cox * capacity * capacity) / vagon.bullet_weight, 2))
+
+                elif vagon.number_of_arrow == 8:
+                    print('sakkiz')
+                    vagon_resistance = 9.81 * (0.7 + round((cons_values.value_ax + cons_values.value_bx * capacity +
+                                              cons_values.value_cx * capacity * capacity) / vagon.bullet_weight, 2))
                 else:
                     vagon_resistance = round(
-                        (9.81 * (cons_values.value_ax + cons_values.value_bx * capacity +
-                         cons_values.value_cx * capacity * capacity)) / vagon.bullet_weight, 2)
+                        (9.81 * (cons_values.value_aox + cons_values.value_box * capacity +
+                         cons_values.value_cox * capacity * capacity)), 2)
                 sum_resistance += vagon_resistance * vagon.total_weight
                 sum_brutto_vagon += vagon.total_weight
 
