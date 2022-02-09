@@ -19,7 +19,7 @@ class VagonDataListView(generics.CreateAPIView):
         serializer = NumberSerializer(data=self.request.POST)
         serializer.is_valid(raise_exception=True)
         number = serializer.data['number']
-        load_weight = serializer.validated_data['load_weight']
+        load_weight = serializer.data['load_weight']
         first = int(number[:1])
         second = int(number[1:2])
         third = int(number[2:3])
@@ -51,7 +51,7 @@ class VagonDataListView(generics.CreateAPIView):
                 number_of_arrow = 8
                 netto_vagon = 29
                 length_vagon = 18.8
-        if first == 3:
+        elif first == 3:
             if second == 0:
                 if third in range(0, 5):
                     number_of_arrow = 4
@@ -351,7 +351,7 @@ class VagonDataListView(generics.CreateAPIView):
                 number_of_arrow = 8
                 netto_vagon = 67.7
                 length_vagon = 24.73
-        else:
+        elif first == 9:
             if second == 0:
                 if third == 0:
                     number_of_arrow = 4
@@ -519,6 +519,8 @@ class VagonDataListView(generics.CreateAPIView):
                 number_of_arrow = 8
                 netto_vagon = 54.4
                 length_vagon = 23.4
+        else:
+            return Response({"error_message": "Vagon raqami 0 yoki 1 bilan boshlanmasligi kerak"})
         input_data = {
             'number_of_arrow': number_of_arrow,
             'netto_vagon': netto_vagon,
@@ -530,6 +532,7 @@ class VagonDataListView(generics.CreateAPIView):
         bullet_weight = total_weight / input_serializer.validated_data['number_of_arrow']
         data = {
             "number_vagon": number,
+            'load_weight': round(load_weight, 2),
             "number_of_arrow": input_serializer.validated_data['number_of_arrow'],
             "netto_vagon": input_serializer.validated_data['netto_vagon'],
             "total_weight": total_weight,
@@ -540,7 +543,7 @@ class VagonDataListView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class LocomotivListListView(generics.ListAPIView):
@@ -617,8 +620,5 @@ class DeleteVagonsData(generics.DestroyAPIView):
         TrainResistanceData.objects.all().delete()
         return Response({"success_message": "Muvaffaqiyatli o'chirildi!!!"})
 
-
-class ResistanceFileDownload(generics.RetrieveAPIView):
-    pass
 
 

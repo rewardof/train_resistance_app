@@ -31,6 +31,7 @@ class Locomotiv(models.Model):
 
 class TotalDataVagon(models.Model):
     number_vagon = models.IntegerField("Vagon raqami")
+    load_weight = models.FloatField("Yuk og'irligi")
     number_of_arrow = models.SmallIntegerField("O'qlar soni")
     netto_vagon = models.FloatField("Vagon og'irligi")
     length_vagon = models.FloatField("Vagon uzunligi")
