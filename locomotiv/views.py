@@ -520,7 +520,7 @@ class VagonDataListView(generics.CreateAPIView):
                 netto_vagon = 54.4
                 length_vagon = 23.4
         else:
-            return Response({"error_message": "Vagon raqami 0 yoki 1 bilan boshlanmasligi kerak"})
+            return Response({"error_message": "Vagon raqami 0 yoki 1 bilan boshlanmasligi kerak"}, status=status.HTTP_400_BAD_REQUEST)
         input_data = {
             'number_of_arrow': number_of_arrow,
             'netto_vagon': netto_vagon,
