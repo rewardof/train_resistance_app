@@ -520,7 +520,8 @@ class VagonDataListView(generics.CreateAPIView):
                 netto_vagon = 54.4
                 length_vagon = 23.4
         else:
-            return Response({"error_message": "Vagon raqami 0 yoki 1 bilan boshlanmasligi kerak"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error_message": "Vagon raqami 0 yoki 1 bilan boshlanmasligi kerak"},
+                            status=status.HTTP_400_BAD_REQUEST)
         input_data = {
             'number_of_arrow': number_of_arrow,
             'netto_vagon': netto_vagon,
@@ -565,9 +566,9 @@ class CalculateResultView(generics.ListAPIView):
         for capacity in range(61):
 
             locomotiv_traction_mode = 9.81 * (locomotiv.value_ao + locomotiv.value_bo * capacity +
-                                                         locomotiv.value_co * capacity * capacity)
+                                              locomotiv.value_co * capacity * capacity)
             locomotiv_idle_mode = 9.81 * (locomotiv.value_aox + locomotiv.value_box * capacity +
-                                                         locomotiv.value_cox * capacity * capacity)
+                                          locomotiv.value_cox * capacity * capacity)
 
             # vagons data
             cons_values = VagonResistanceConstant.objects.first()
@@ -577,23 +578,28 @@ class CalculateResultView(generics.ListAPIView):
             for vagon in TotalDataVagon.objects.all():
                 if vagon.bullet_weight > 6 and vagon.number_of_arrow == 4:
                     vagon_resistance = 9.81 * (0.7 + round((cons_values.value_ao + cons_values.value_bo * capacity +
-                                              cons_values.value_co * capacity * capacity) / vagon.bullet_weight, 2))
+                                                            cons_values.value_co * capacity * capacity) / vagon.bullet_weight,
+                                                           2))
 
                 elif vagon.number_of_arrow == 8:
-                    print('sakkiz')
                     vagon_resistance = 9.81 * (0.7 + round((cons_values.value_ax + cons_values.value_bx * capacity +
-                                              cons_values.value_cx * capacity * capacity) / vagon.bullet_weight, 2))
+                                                            cons_values.value_cx * capacity * capacity) / vagon.bullet_weight,
+                                                           2))
                 else:
                     vagon_resistance = round(
                         (9.81 * (cons_values.value_aox + cons_values.value_box * capacity +
-                         cons_values.value_cox * capacity * capacity)), 2)
+                                 cons_values.value_cox * capacity * capacity)), 2)
                 sum_resistance += vagon_resistance * vagon.total_weight
                 sum_brutto_vagon += vagon.total_weight
 
             total_resistance_vagon = round(sum_resistance / sum_brutto_vagon, 2)
 
-            total_resistance_traction = locomotiv_traction_mode + total_resistance_vagon
-            total_resistance_idle = locomotiv_idle_mode + total_resistance_vagon
+            total_resistance_traction = (locomotiv_traction_mode * locomotiv.weigth
+                                         + total_resistance_vagon * sum_brutto_vagon) / (
+                                                    locomotiv.weigth + sum_brutto_vagon)
+            total_resistance_idle = (locomotiv_idle_mode * locomotiv.weigth
+                                     + total_resistance_vagon * sum_brutto_vagon) / (
+                                                locomotiv.weigth + sum_brutto_vagon)
 
             data = {
                 'capacity': capacity,
@@ -621,6 +627,3 @@ class DeleteVagonsData(generics.DestroyAPIView):
         TotalDataVagon.objects.all().delete()
         TrainResistanceData.objects.all().delete()
         return Response({"success_message": "Muvaffaqiyatli o'chirildi!!!"})
-
-
-
