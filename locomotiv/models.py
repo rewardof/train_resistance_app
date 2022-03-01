@@ -10,6 +10,9 @@ class Locomotiv(models.Model):
     locomotiv_name = models.CharField("Lokomotiv nomi", max_length=32)
     locomotiv_seria = models.CharField("Lokomotiv seriyasi", max_length=32)
     locomotiv_number = models.CharField("Lokomotiv raqami", max_length=32)
+    weigth = models.FloatField("Lokomotiv og'irligi")
+    lenght = models.FloatField("Lokomotiv uzunligi")
+    number_arrows = models.SmallIntegerField("O'qlar soni")
     type_locomotiv = models.IntegerField("Lokomotiv turi", choices=TYPE_LOCOMOTIV)
     value_ao = models.FloatField("ao qiymati")
     value_bo = models.FloatField("bo qiymati")
@@ -62,14 +65,6 @@ class VagonResistanceConstant(models.Model):
         verbose_name_plural = "Vagon Qarshili uchun o'zgarmas qiymatlar"
 
 
-# class Excel(models.Model):
-#     file = models.FileField("Excel file", upload_to='files/')
-#
-#     class Meta:
-#         verbose_name = 'Excel file'
-#         verbose_name_plural = 'Excel filelar'
-
-
 class TrainResistanceData(models.Model):
     capacity = models.IntegerField()
     locomotiv_traction_mode = models.FloatField()
@@ -77,3 +72,16 @@ class TrainResistanceData(models.Model):
     total_resistance_vagon = models.FloatField()
     total_resistance_traction = models.FloatField()
     total_resistance_idle = models.FloatField()
+
+
+class RailwaySwitchMark(models.Model):
+    title = models.CharField("Nomi", max_length=128)
+    mark = models.CharField("Markasi", max_length=16)
+    a = models.FloatField("a masofasi uzunligi")
+    b = models.FloatField("b masofasi uzunligi")
+    rail_type = models.CharField("Rels turi", max_length=16, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Stelkali o'tkazgich markasi"
+        verbose_name_plural = "Strelkali o'tkazgichlar markalari"
+
