@@ -1,9 +1,13 @@
 from rest_framework.response import Response
 from rest_framework import generics, status
+from rest_framework.views import APIView
 
-from locomotiv.models import Locomotiv, TotalDataVagon, VagonResistanceConstant, TrainResistanceData
-from locomotiv.serializers import NumberSerializer, LocomotivSerializer, TotalDataSerializer, InputDataSerializer
+from locomotiv.models import Locomotiv, TotalDataVagon, VagonResistanceConstant, TrainResistanceData, RailwaySwitchMark, \
+    RailRoadCharacteristic
+from locomotiv.serializers import NumberSerializer, LocomotivSerializer, TotalDataSerializer, InputDataSerializer, \
+    InputSerializer, RailRoadSwitchSerializer, RailRoadCharacteristicSerializer
 from locomotiv.utils import resistance_export_excel
+from .wind_dict import get_wind_coefficient
 
 
 class VagonDataListView(generics.CreateAPIView):
@@ -552,11 +556,11 @@ class LocomotivListListView(generics.ListAPIView):
     search_fields = ['locomotiv_name', ]
 
 
-class CalculateResultView(generics.ListAPIView):
+class CalculateResultView(generics.ListCreateAPIView):
     queryset = Locomotiv.objects.filter(is_active=True)
-    serializer_class = LocomotivSerializer
+    serializer_class = InputSerializer
 
-    def get(self, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
             locomotiv = Locomotiv.objects.get(id=self.kwargs['locomotiv_id'])
         except:
@@ -581,7 +585,6 @@ class CalculateResultView(generics.ListAPIView):
                                               cons_values.value_co * capacity * capacity) / vagon.bullet_weight, 2))
 
                 elif vagon.number_of_arrow == 8:
-                    print('sakkiz')
                     vagon_resistance = 9.81 * (0.7 + round((cons_values.value_ax + cons_values.value_bx * capacity +
                                               cons_values.value_cx * capacity * capacity) / vagon.bullet_weight, 2))
                 else:
@@ -594,31 +597,91 @@ class CalculateResultView(generics.ListAPIView):
 
             total_resistance_vagon = round(sum_resistance / sum_brutto_vagon, 2)
 
-            total_resistance_traction = locomotiv_traction_mode + total_resistance_vagon
-            total_resistance_idle = locomotiv_idle_mode + total_resistance_vagon
+            total_resistance_traction = (locomotiv_traction_mode * locomotiv.weigth
+                                         + total_resistance_vagon * sum_brutto_vagon) / (
+                                                locomotiv.weigth + sum_brutto_vagon)
+            total_resistance_idle = (locomotiv_idle_mode * locomotiv.weigth
+                                     + total_resistance_vagon * sum_brutto_vagon) / (
+                                            locomotiv.weigth + sum_brutto_vagon)
 
             # additional resistances
 
             # Nishablikning solishtirma
-            i = self.request.POST.get('declivity')
+            i = request.data.get('declivity')
             Wi = 9.81 * i
 
             # Egrilikning solishtirma qarshilik
             Lp = sum_length_vagons + locomotiv.lenght
-            R = self.request.POST.get('radius')
-            length_curvature = self.request.POST.get('length_curvature')
+            R = request.data.get('radius')
+            length_curvature = request.data.get('length_curvature')
             if length_curvature < Lp:
                 Wor = 9.81 * 700 * length_curvature / R / Lp
             else:
                 Wor = 9.81 * 700 / R
 
             # Strelkali o’tkazgichlarning solishtirma qarshiligi
+            railway_switch = request.data.get('railway_switch_mark')
+            try:
+                railway_switch = RailwaySwitchMark.objects.get(id=railway_switch)
+            except:
+                return Response({"error_message": "Bunday id li strelkali o'tkazgich mavjud emas!!!"}, status=status.HTTP_404_NOT_FOUND)
+            if Lp > railway_switch.length_curvature:
+                Wor_for_switch = 9.81 * 700 * railway_switch.length_curvature / railway_switch.radius / Lp
+            else:
+                Wor_for_switch = 9.81 * 700 / railway_switch.radius
 
+            # Past haroratning solishtirma qarshiligi
+            outside_temperature = request.data.get('outside_temperature')
+            if outside_temperature < -10:
+                outside_temperature_resistance = 0.004 * total_resistance_traction # Wnt
+            else:
+                outside_temperature_resistance = 0
 
+            # Harakatga qarama qarshi va yon tomondan shamolning solishtirma qarshiligi
+            wind_capacity = request.data.get('wind_capacity')
+            if wind_capacity < 5:
+                wind_capacity_resistance = 0
+            else:
+                if wind_capacity > 35:
+                    coef = get_wind_coefficient(capacity, 35)
+                else:
+                    coef = get_wind_coefficient(capacity, int(wind_capacity))
+                wind_capacity_resistance = coef * total_resistance_traction
 
+            # Vagonlar bilan oldinda harakatlangandagi solishtirma qarshilik
 
+            is_ahead = request.data.get('is_ahead')
+            if is_ahead:
+                Wvv = (0.15 + i/1000) * total_resistance_traction
+                print(Wvv)
+            else:
+                Wvv = 0
 
+            #  Yo’l holatining solishtirma qarshiligi
 
+            railway_characteristics = request.data.get('railway_characteristic')
+            try:
+                railway_characteristics = RailRoadCharacteristic.objects.get(id=railway_characteristics)
+            except:
+                return Response({"error_message": "Bunday id li yo'l xarakteristikasi mavjud emas!!!"}, status=status.HTTP_404_NOT_FOUND)
+            railroad_condition_resistance = (railway_characteristics.coefficient - 1) * total_resistance_traction
+
+            # Manoyvr tarkibining tortish rejimidagi harakatiga umumiy qarshilik.
+            W = (locomotiv_traction_mode * locomotiv.weigth + total_resistance_vagon * sum_brutto_vagon + (locomotiv.weigth + sum_brutto_vagon) *
+                 (Wi + Wor + Wor_for_switch + outside_temperature_resistance +
+                  wind_capacity_resistance + Wvv + railroad_condition_resistance))
+
+            # Manyovr tarkibining tortish rejimidagi harakatiga solishtirma qarshilik
+            specific_traction_resistance = W / (locomotiv.weigth + sum_brutto_vagon)
+
+            # Manyovr tarkibining salt rejimidagi harakatiga umumiy qarshilik
+            Ws = (locomotiv_idle_mode * locomotiv.weigth + total_resistance_vagon * sum_brutto_vagon + (
+                        locomotiv.weigth + sum_brutto_vagon) *
+                 (Wi + Wor + Wor_for_switch + outside_temperature_resistance +
+                  wind_capacity_resistance + Wvv + railroad_condition_resistance))
+
+            # Manyovr tarkibining Manyovr tarkibining tortish rejimidagi harakatiga solishtirma qarshilik
+            specific_idle_resistance = Ws / (locomotiv.weigth + sum_brutto_vagon)
 
 
             data = {
@@ -627,7 +690,19 @@ class CalculateResultView(generics.ListAPIView):
                 'locomotiv_idle_mode': round(locomotiv_idle_mode, 2),
                 'total_resistance_vagon': round(total_resistance_vagon, 2),
                 'total_resistance_traction': round(total_resistance_traction, 2),
-                'total_resistance_idle': round(total_resistance_idle, 2)
+                'total_resistance_idle': round(total_resistance_idle, 2),
+
+                'declivity_resistance': round(Wi, 2),
+                'curvature_resistance': round(Wor, 2),
+                'switch_curvature_resistance': round(Wor_for_switch, 2),
+                'outside_temperature_resistance': round(outside_temperature_resistance, 2),
+                'wind_capacity_resistance': round(wind_capacity_resistance, 2),
+                'resistance_vagon_ahead': round(Wvv, 2),
+                'railroad_condition_resistance': round(railroad_condition_resistance, 2),
+                'all_traction_resistance': round(W, 2),
+                'specific_traction_resistance': round(specific_traction_resistance, 2),
+                'all_idle_resistance': round(Ws, 2),
+                'specific_idle_resistance': round(specific_idle_resistance, 2)
             }
             TrainResistanceData.objects.create(**data)
             result.append(data)
@@ -649,4 +724,11 @@ class DeleteVagonsData(generics.DestroyAPIView):
         return Response({"success_message": "Muvaffaqiyatli o'chirildi!!!"})
 
 
+class RailRoadSwitchList(generics.ListAPIView):
+    serializer_class = RailRoadSwitchSerializer
+    queryset = RailwaySwitchMark.objects.all()
 
+
+class RailRoadCharacteristicLIstView(generics.ListAPIView):
+    queryset = RailRoadCharacteristic.objects.all()
+    serializer_class = RailRoadCharacteristicSerializer

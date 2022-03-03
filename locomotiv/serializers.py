@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.response import Response
 
-from locomotiv.models import Locomotiv, TotalDataVagon
+from locomotiv.models import Locomotiv, TotalDataVagon, RailwaySwitchMark, RailRoadCharacteristic
 
 
 class NumberSerializer(serializers.Serializer):
@@ -53,3 +53,20 @@ class LocomotivSerializer(serializers.ModelSerializer):
         model = Locomotiv
         fields = ['id', 'locomotiv_name', 'locomotiv_seria', 'locomotiv_number', 'type_locomotiv']
 
+
+class InputSerializer(serializers.Serializer):
+    declivity = serializers.FloatField()
+    radius = serializers.IntegerField()
+    length_curvature = serializers.IntegerField()
+
+
+class RailRoadSwitchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RailwaySwitchMark
+        fields = ['id', 'mark']
+
+
+class RailRoadCharacteristicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RailRoadCharacteristic
+        fields = ['id', 'title', 'coefficient']

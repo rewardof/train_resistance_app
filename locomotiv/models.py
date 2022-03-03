@@ -72,16 +72,46 @@ class TrainResistanceData(models.Model):
     total_resistance_vagon = models.FloatField()
     total_resistance_traction = models.FloatField()
     total_resistance_idle = models.FloatField()
+    outside_temperature_resistance = models.FloatField()
+    wind_capacity_resistance = models.FloatField()
+    resistance_vagon_ahead = models.FloatField()
+    railroad_condition_resistance = models.FloatField()
+    all_traction_resistance = models.FloatField()
+    specific_traction_resistance = models.FloatField()
+    all_idle_resistance = models.FloatField()
+    specific_idle_resistance = models.FloatField()
+    declivity_resistance = models.FloatField()
+    curvature_resistance = models.FloatField()
+    switch_curvature_resistance = models.FloatField()
+
+
+
 
 
 class RailwaySwitchMark(models.Model):
-    title = models.CharField("Nomi", max_length=128)
+    title = models.CharField("Nomi", max_length=128, blank=True)
     mark = models.CharField("Markasi", max_length=16)
     a = models.FloatField("a masofasi uzunligi")
     b = models.FloatField("b masofasi uzunligi")
     rail_type = models.CharField("Rels turi", max_length=16, blank=True, null=True)
+    radius = models.IntegerField("Egrilik radiusi")
+    length_curvature = models.IntegerField("Egrilik uzunligi")
 
     class Meta:
         verbose_name = "Stelkali o'tkazgich markasi"
         verbose_name_plural = "Strelkali o'tkazgichlar markalari"
 
+    def __str__(self):
+        return self.mark
+
+
+class RailRoadCharacteristic(models.Model):
+    title = models.CharField(max_length=256)
+    coefficient = models.FloatField()
+
+    class Meta:
+        verbose_name = "Yo'l xarakteristikasi"
+        verbose_name_plural = "Yo'l xarakteristikasi"
+
+    def __str__(self):
+        return self.title
