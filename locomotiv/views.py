@@ -578,6 +578,8 @@ class CalculateResultView(generics.ListCreateAPIView):
 
             sum_resistance = 0
             sum_brutto_vagon = 0
+            sum_length_vagons = 0
+            sum_length_vagons = 0
             for vagon in TotalDataVagon.objects.all():
                 if vagon.bullet_weight > 6 and vagon.number_of_arrow == 4:
                     vagon_resistance = 9.81 * (0.7 + round((cons_values.value_ao + cons_values.value_bo * capacity +
@@ -595,6 +597,7 @@ class CalculateResultView(generics.ListCreateAPIView):
                                  cons_values.value_cox * capacity * capacity)), 2)
                 sum_resistance += vagon_resistance * vagon.total_weight
                 sum_brutto_vagon += vagon.total_weight
+                sum_length_vagons += vagon.length_vagon
 
             total_resistance_vagon = round(sum_resistance / sum_brutto_vagon, 2)
 
