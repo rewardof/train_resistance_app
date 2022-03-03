@@ -569,31 +569,32 @@ class CalculateResultView(generics.ListCreateAPIView):
         for capacity in range(61):
 
             locomotiv_traction_mode = 9.81 * (locomotiv.value_ao + locomotiv.value_bo * capacity +
-                                                         locomotiv.value_co * capacity * capacity)
+                                              locomotiv.value_co * capacity * capacity)
             locomotiv_idle_mode = 9.81 * (locomotiv.value_aox + locomotiv.value_box * capacity +
-                                                         locomotiv.value_cox * capacity * capacity)
+                                          locomotiv.value_cox * capacity * capacity)
 
             # vagons data
             cons_values = VagonResistanceConstant.objects.first()
 
             sum_resistance = 0
             sum_brutto_vagon = 0
-            sum_length_vagons = 0
             for vagon in TotalDataVagon.objects.all():
                 if vagon.bullet_weight > 6 and vagon.number_of_arrow == 4:
                     vagon_resistance = 9.81 * (0.7 + round((cons_values.value_ao + cons_values.value_bo * capacity +
-                                              cons_values.value_co * capacity * capacity) / vagon.bullet_weight, 2))
+                                                            cons_values.value_co * capacity * capacity) / vagon.bullet_weight,
+                                                           2))
 
                 elif vagon.number_of_arrow == 8:
+                    print('sakkiz')
                     vagon_resistance = 9.81 * (0.7 + round((cons_values.value_ax + cons_values.value_bx * capacity +
-                                              cons_values.value_cx * capacity * capacity) / vagon.bullet_weight, 2))
+                                                            cons_values.value_cx * capacity * capacity) / vagon.bullet_weight,
+                                                           2))
                 else:
                     vagon_resistance = round(
                         (9.81 * (cons_values.value_aox + cons_values.value_box * capacity +
-                         cons_values.value_cox * capacity * capacity)), 2)
+                                 cons_values.value_cox * capacity * capacity)), 2)
                 sum_resistance += vagon_resistance * vagon.total_weight
                 sum_brutto_vagon += vagon.total_weight
-                sum_length_vagons += vagon.length_vagon
 
             total_resistance_vagon = round(sum_resistance / sum_brutto_vagon, 2)
 
