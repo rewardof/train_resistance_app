@@ -556,9 +556,9 @@ class LocomotivListListView(generics.ListAPIView):
     search_fields = ['locomotiv_name', ]
 
 
-class CalculateResultView(generics.ListCreateAPIView):
+class CalculateResultView(APIView):
     queryset = Locomotiv.objects.filter(is_active=True)
-    serializer_class = InputSerializer
+    # serializer_class = InputSerializer
 
     def post(self, request, *args, **kwargs):
         try:
