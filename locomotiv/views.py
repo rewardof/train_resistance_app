@@ -625,7 +625,7 @@ class CalculateResultView(APIView):
                 Wor = 9.81 * 700 / R
 
             # Strelkali o’tkazgichlarning solishtirma qarshiligi
-            railway_switch = float(request.data.get('railway_switch_mark'))
+            railway_switch = int(request.data.get('railway_switch_mark'))
             try:
                 railway_switch = RailwaySwitchMark.objects.get(id=railway_switch)
             except:
@@ -664,7 +664,7 @@ class CalculateResultView(APIView):
 
             #  Yo’l holatining solishtirma qarshiligi
 
-            railway_characteristics = float(request.data.get('railway_characteristic'))
+            railway_characteristics = int(request.data.get('railway_characteristic'))
             try:
                 railway_characteristics = RailRoadCharacteristic.objects.get(id=railway_characteristics)
             except:
