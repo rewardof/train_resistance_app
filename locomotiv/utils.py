@@ -29,7 +29,11 @@ def resistance_export_excel(request):
 
     columns = ['Tezlik', 'Lokomotivning\n tortish rejimidagi \n harakatiga asosiy\nsolishtirma qarshilik', ' Lokomotivning salt yurish rejimidagi harakatiga asosiy solishtirma qarshilik',
                'Vagonlarning harakatiga asosiy solishtirma qarshilik', ' Manyovr tarkibining tortish rejimidagi harakatiga asosiy solishtirma qarshilik',
-               'Manyovr tarkibining salt yurish rejimidagi harakatiga asosiy solishtirma qarshilik']
+               'Manyovr tarkibining salt yurish rejimidagi harakatiga asosiy solishtirma qarshilik', "Nishablikning solishtirma qarshiligi",
+               "Egrilikning solishtirma qarshilik", "Strelkali o’tkazgichlarning solishtirma qarshiligi", "Past haroratning solishtirma qarshiligi",
+               "Harakatga qarama-qarshi va yon tomondan shamolning solishtirma qarshiligi", "Vagonlar bilan oldinda harakatlangandagi solishtirma qarshilik",
+               "Yo’l holatining solishtirma qarshiligi", "Manoyvr tarkibining tortish rejimidagi harakatiga umumiy qarshilik", "Manyovr tarkibining tortish rejimidagi harakatiga solishtirma qarshilik",
+               "Manyovr tarkibining salt rejimidagi harakatiga umumiy qarshilik", "Manyovr tarkibining tortish rejimidagi harakatiga solishtirma qarshilik"]
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, str(columns[col_num]), style=font_style)
@@ -46,6 +50,20 @@ def resistance_export_excel(request):
     ws.col(4).width = 8000
     ws.col(5).width = 8000
 
+    ws.col(6).width = 8000
+    ws.col(7).width = 8000
+    ws.col(8).width = 8000
+    ws.col(9).width = 8000
+    ws.col(10).width = 8000
+    ws.col(11).width = 8000
+    ws.col(12).width = 8000
+    ws.col(13).width = 8000
+    ws.col(14).width = 8000
+    ws.col(15).width = 8000
+    ws.col(16).width = 8000
+
+
+
     for instance in data:
         row_num += 1
         ws.write(row_num, 0, instance.capacity, font_style)
@@ -54,6 +72,19 @@ def resistance_export_excel(request):
         ws.write(row_num, 3, instance.total_resistance_vagon, font_style)
         ws.write(row_num, 4, instance.total_resistance_traction, font_style)
         ws.write(row_num, 5, instance.total_resistance_idle, font_style)
+
+        ws.write(row_num, 6, instance.declivity_resistance, font_style)
+        ws.write(row_num, 7, instance.curvature_resistance, font_style)
+        ws.write(row_num, 8, instance.switch_curvature_resistance, font_style)
+        ws.write(row_num, 9, instance.outside_temperature_resistance, font_style)
+        ws.write(row_num, 10, instance.wind_capacity_resistance, font_style)
+        ws.write(row_num, 11, instance.resistance_vagon_ahead, font_style)
+        ws.write(row_num, 12, instance.railroad_condition_resistance, font_style)
+        ws.write(row_num, 13, instance.all_traction_resistance, font_style)
+        ws.write(row_num, 14, instance.specific_traction_resistance, font_style)
+        ws.write(row_num, 15, instance.all_idle_resistance, font_style)
+        ws.write(row_num, 16, instance.specific_idle_resistance, font_style)
+
     wb.save(response)
     return response
 
