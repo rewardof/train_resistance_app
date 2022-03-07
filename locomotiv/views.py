@@ -612,20 +612,20 @@ class CalculateResultView(APIView):
             # additional resistances
 
             # Nishablikning solishtirma
-            i = request.data.get('declivity')
+            i = float(request.data.get('declivity'))
             Wi = 9.81 * i
 
             # Egrilikning solishtirma qarshilik
             Lp = sum_length_vagons + locomotiv.lenght
-            R = request.data.get('radius')
-            length_curvature = request.data.get('length_curvature')
+            R = float(request.data.get('radius'))
+            length_curvature = float(request.data.get('length_curvature'))
             if length_curvature < Lp:
                 Wor = 9.81 * 700 * length_curvature / R / Lp
             else:
                 Wor = 9.81 * 700 / R
 
             # Strelkali o’tkazgichlarning solishtirma qarshiligi
-            railway_switch = request.data.get('railway_switch_mark')
+            railway_switch = float(request.data.get('railway_switch_mark'))
             try:
                 railway_switch = RailwaySwitchMark.objects.get(id=railway_switch)
             except:
@@ -636,14 +636,14 @@ class CalculateResultView(APIView):
                 Wor_for_switch = 9.81 * 700 / railway_switch.radius
 
             # Past haroratning solishtirma qarshiligi
-            outside_temperature = request.data.get('outside_temperature')
+            outside_temperature = float(request.data.get('outside_temperature'))
             if outside_temperature < -10:
                 outside_temperature_resistance = 0.004 * total_resistance_traction # Wnt
             else:
                 outside_temperature_resistance = 0
 
             # Harakatga qarama qarshi va yon tomondan shamolning solishtirma qarshiligi
-            wind_capacity = request.data.get('wind_capacity')
+            wind_capacity = float(request.data.get('wind_capacity'))
             if wind_capacity < 5:
                 wind_capacity_resistance = 0
             else:
@@ -664,7 +664,7 @@ class CalculateResultView(APIView):
 
             #  Yo’l holatining solishtirma qarshiligi
 
-            railway_characteristics = request.data.get('railway_characteristic')
+            railway_characteristics = float(request.data.get('railway_characteristic'))
             try:
                 railway_characteristics = RailRoadCharacteristic.objects.get(id=railway_characteristics)
             except:
