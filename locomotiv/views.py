@@ -752,20 +752,16 @@ class CalculateResultView(APIView):
             # 12 - ustun uchun
             # o'rtacha tezlik
             avg_capacity = V - round(delta_capacity / 2, 2)
-            print('avg_capacity', avg_capacity)
 
             # 13 - ustun uchun
             # yurilgan yol jami
             S += avg_capacity / 3.6
-            print('masofa', S)
 
             # vaqt o'tishi
             braking_time += 1
-            print('time', braking_time)
 
             # tezlik
             V = V - round(delta_capacity, 2)
-            print('delta_capacity', delta_capacity)
 
         payload = {
             'braking_distance': round(S, 2),
