@@ -14,6 +14,8 @@ class Locomotiv(models.Model):
     lenght = models.FloatField("Lokomotiv uzunligi")
     number_arrows = models.SmallIntegerField("O'qlar soni")
     type_locomotiv = models.IntegerField("Lokomotiv turi", choices=TYPE_LOCOMOTIV)
+    force_per_arrow = models.FloatField("Bitta o‘qga bosilishidagi haqiqiy kuchi")
+    force_all_arrows = models.FloatField("Barcha o‘qga bosilishidagi haqiqiy kuchi")
     value_ao = models.FloatField("ao qiymati")
     value_bo = models.FloatField("bo qiymati")
     value_co = models.FloatField("co qiymati")
@@ -83,8 +85,6 @@ class TrainResistanceData(models.Model):
     declivity_resistance = models.FloatField()
     curvature_resistance = models.FloatField()
     switch_curvature_resistance = models.FloatField()
-
-
 
 
 
