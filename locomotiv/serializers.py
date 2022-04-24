@@ -72,8 +72,16 @@ class RailRoadCharacteristicSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'coefficient']
 
 
-class TrainRunningDistanceSerializer(serializers.Serializer):
+
+class AdditionalDataSerializer(serializers.Serializer):
     distance = serializers.DecimalField(decimal_places=2, max_digits=6, coerce_to_string=False)
     declivity = serializers.DecimalField(decimal_places=3, max_digits=6, coerce_to_string=False)
     radius = serializers.IntegerField()
+
+
+class TrainRunningDistanceSerializer(serializers.Serializer):
+    values = AdditionalDataSerializer(many=True)
+    max_capacity = serializers.DecimalField(decimal_places=2, max_digits=6, coerce_to_string=False)
+    coefficient1 = serializers.DecimalField(decimal_places=3, max_digits=6, coerce_to_string=False)
+    coefficient2 = serializers.DecimalField(decimal_places=3, max_digits=6, coerce_to_string=False)
 

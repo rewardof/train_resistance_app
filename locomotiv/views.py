@@ -807,7 +807,7 @@ class TrainRunningDistance(generics.ListCreateAPIView, APIView):
     serializer_class = TrainRunningDistanceSerializer
 
     def list(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, many=True)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.data
 
@@ -830,14 +830,14 @@ class TrainRunningDistance(generics.ListCreateAPIView, APIView):
         Vl1 = 0
         # kiritiladigan o'zgarmaslar
         Vmax = data['max_capacity']
-        Kt1 = data['Kt1']
-        Kt2 = data['Kt2']
-        for item in data['articles']:
+        Kt1 = data['coefficient1']
+        Kt2 = data['coefficient2']
+        for item in data['values']:
             # F ustun: maksimla tezlik hisobi
-            if Kt1 * float(item['declivity']) + Kt2 > Vmax:
+            if float(Kt1) * float(item['declivity']) + float(Kt2) > Vmax:
                 Vmax = Vmax
             else:
-                Vmax = Kt1 * float(item['declivity']) + Kt2
+                Vmax = float(Kt1) * float(item['declivity']) + float(Kt2)
 
             # G ustun: Vl ni topish
             if Vqb % 5 < 2.5:
