@@ -703,7 +703,7 @@ class CalculateResultView(APIView):
         # tormoz berishdagi boshlangich tezlik
         V = self.request.data.get('brake_capacity', None)
         S = 0
-        if V is not None:
+        if V:
             V = round(float(self.request.data.get('brake_capacity')), 1)
 
             # 6-ustun uchun
