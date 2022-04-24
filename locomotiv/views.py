@@ -701,73 +701,75 @@ class CalculateResultView(APIView):
         total_weight = locomotiv.weigth + find_sum_brutto_vagon(vagons_queryset)
 
         # tormoz berishdagi boshlangich tezlik
-        V = round(float(self.request.data.get('brake_capacity')), 1)
-
-        # 6-ustun uchun
-        #  Lokomotivni bitta tormoz kolodkasinining o‘qga bosilishidagi haqiqiy kuchi
-        K = 2300 * 2 * find_total_number_of_pads(vagons_queryset)
-
+        V = self.request.data.get('brake_capacity', None)
         S = 0
-        braking_time = 1
-        while V > 0:
-            if is_magistral:
-                if total_lenght <= 500:
-                    if braking_time < 27:
-                        Kt = -0.0000191 * pow(braking_time, 3) - 0.000343 * pow(braking_time, 2) + 0.06 * braking_time
+        if V is not None:
+            V = round(float(self.request.data.get('brake_capacity')), 1)
+
+            # 6-ustun uchun
+            #  Lokomotivni bitta tormoz kolodkasinining o‘qga bosilishidagi haqiqiy kuchi
+            K = 2300 * 2 * find_total_number_of_pads(vagons_queryset)
+
+            braking_time = 1
+            while V > 0:
+                if is_magistral:
+                    if total_lenght <= 500:
+                        if braking_time < 27:
+                            Kt = -0.0000191 * pow(braking_time, 3) - 0.000343 * pow(braking_time, 2) + 0.06 * braking_time
+                        else:
+                            Kt = 1
+                    elif total_lenght > 500:
+                        if braking_time < 33:
+                            Kt = -0.0000255 * pow(braking_time, 3) - 0.000766 * pow(braking_time, 2) + 0.033 * braking_time
+                        else:
+                            Kt = 1  # Todo shu yerda barcha sanoat tarkibi uchun degan joyi qolib turadi
+                else:
+                    if braking_time < 31:
+                        Kt = -0.0000107 * pow(braking_time, 3) - 0.00173 * pow(braking_time, 2) + 0.076 * braking_time
                     else:
                         Kt = 1
-                elif total_lenght > 500:
-                    if braking_time < 33:
-                        Kt = -0.0000255 * pow(braking_time, 3) - 0.000766 * pow(braking_time, 2) + 0.033 * braking_time
-                    else:
-                        Kt = 1  # Todo shu yerda barcha sanoat tarkibi uchun degan joyi qolib turadi
-            else:
-                if braking_time < 31:
-                    Kt = -0.0000107 * pow(braking_time, 3) - 0.00173 * pow(braking_time, 2) + 0.076 * braking_time
-                else:
-                    Kt = 1
 
-            # G'ildirakka tormoz kolodkasi ishqalanishning haqiqiy iqtisodiy koeffitsienti
+                # G'ildirakka tormoz kolodkasi ishqalanishning haqiqiy iqtisodiy koeffitsienti
 
-            # 4-ustun uchun
-            K1 = locomotiv.force_all_arrows * Kt
+                # 4-ustun uchun
+                K1 = locomotiv.force_all_arrows * Kt
 
-            Kv = Kt * K  # 6-ustun uchun
+                Kv = Kt * K  # 6-ustun uchun
 
-            # 5-ustun uchun
-            p1 = 0.6 * (0.016 * locomotiv.force_per_arrow * Kt + 100) / (0.08 * locomotiv.force_per_arrow * Kt + 100) * (V + 100) / (5 * V + 100)
+                # 5-ustun uchun
+                p1 = 0.6 * (0.016 * locomotiv.force_per_arrow * Kt + 100) / (0.08 * locomotiv.force_per_arrow * Kt + 100) * (V + 100) / (5 * V + 100)
 
-            # vagon uchun, 7-ustun
-            p0 = 0.6 * (0.016 * 2300 * Kt + 100) / (0.08 * 2300 * Kt + 100) * (V + 100) / (5 * V + 100)
+                # vagon uchun, 7-ustun
+                p0 = 0.6 * (0.016 * 2300 * Kt + 100) / (0.08 * 2300 * Kt + 100) * (V + 100) / (5 * V + 100)
 
-            # 8-ustun uchun
-            # umumiy tormoz kuchi
-            Vmt = Kv * p0 + K1 * p1
-            # maryovr tarkibining salt yurish rejimidagi solishtirma qarshiligi
-            specific_idle_resistance = find_specific_idle_resistance(locomotiv, V, vagons_queryset, i, R, length_curvature,
-                              railway_switch, outside_temperature, wind_capacity, is_ahead, railway_characteristics)
+                # 8-ustun uchun
+                # umumiy tormoz kuchi
+                Vmt = Kv * p0 + K1 * p1
+                # maryovr tarkibining salt yurish rejimidagi solishtirma qarshiligi
+                specific_idle_resistance = find_specific_idle_resistance(locomotiv, V, vagons_queryset, i, R, length_curvature,
+                                  railway_switch, outside_temperature, wind_capacity, is_ahead, railway_characteristics)
 
-            # 10 - ustun uchun
-            # manyorvr tarkibining umumiy solishtirma tormozlanish kuchi
-            r = i + specific_idle_resistance + Vmt / total_weight
+                # 10 - ustun uchun
+                # manyorvr tarkibining umumiy solishtirma tormozlanish kuchi
+                r = i + specific_idle_resistance + Vmt / total_weight
 
-            # 11 - ustun
-            # tezlik kamayishi
-            delta_capacity = r / 30
+                # 11 - ustun
+                # tezlik kamayishi
+                delta_capacity = r / 30
 
-            # 12 - ustun uchun
-            # o'rtacha tezlik
-            avg_capacity = V - round(delta_capacity / 2, 2)
+                # 12 - ustun uchun
+                # o'rtacha tezlik
+                avg_capacity = V - round(delta_capacity / 2, 2)
 
-            # 13 - ustun uchun
-            # yurilgan yol jami
-            S += avg_capacity / 3.6
+                # 13 - ustun uchun
+                # yurilgan yol jami
+                S += avg_capacity / 3.6
 
-            # vaqt o'tishi
-            braking_time += 1
+                # vaqt o'tishi
+                braking_time += 1
 
-            # tezlik
-            V = V - round(delta_capacity, 2)
+                # tezlik
+                V = V - round(delta_capacity, 2)
 
         payload = {
             'braking_distance': round(S, 2),
