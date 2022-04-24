@@ -87,7 +87,6 @@ class TrainResistanceData(models.Model):
     switch_curvature_resistance = models.FloatField()
 
 
-
 class RailwaySwitchMark(models.Model):
     title = models.CharField("Nomi", max_length=128, blank=True)
     mark = models.CharField("Markasi", max_length=16)
@@ -115,3 +114,9 @@ class RailRoadCharacteristic(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class WeightModel(models.Model):
+    locomotiv_weight = models.FloatField()
+    vagons_weight = models.FloatField()
+    locomotiv = models.ForeignKey(Locomotiv, on_delete=models.CASCADE)

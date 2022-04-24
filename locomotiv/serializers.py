@@ -33,11 +33,11 @@ class NumberSerializer(serializers.Serializer):
 
 
 class TotalDataSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = TotalDataVagon
-        fields = ['id', 'number_vagon', 'load_weight', 'number_of_arrow', 'netto_vagon', 'length_vagon', 'total_weight', 'bullet_weight']
-    
+        fields = ['id', 'number_vagon', 'load_weight', 'number_of_arrow', 'netto_vagon', 'length_vagon', 'total_weight',
+                  'bullet_weight']
+
     def create(self, validated_data):
         return TotalDataVagon.objects.create(**validated_data)
 
@@ -70,3 +70,10 @@ class RailRoadCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = RailRoadCharacteristic
         fields = ['id', 'title', 'coefficient']
+
+
+class TrainRunningDistanceSerializer(serializers.Serializer):
+    distance = serializers.DecimalField(decimal_places=2, max_digits=6, coerce_to_string=False)
+    declivity = serializers.DecimalField(decimal_places=3, max_digits=6, coerce_to_string=False)
+    radius = serializers.IntegerField()
+

@@ -1,16 +1,18 @@
+import math
+
 from rest_framework.response import Response
 from rest_framework import generics, status
 from rest_framework.views import APIView
 
 from locomotiv.models import Locomotiv, TotalDataVagon, VagonResistanceConstant, TrainResistanceData, RailwaySwitchMark, \
-    RailRoadCharacteristic
+    RailRoadCharacteristic, WeightModel
 from locomotiv.serializers import NumberSerializer, LocomotivSerializer, TotalDataSerializer, InputDataSerializer, \
-    InputSerializer, RailRoadSwitchSerializer, RailRoadCharacteristicSerializer
+    InputSerializer, RailRoadSwitchSerializer, RailRoadCharacteristicSerializer, TrainRunningDistanceSerializer
 from locomotiv.utils import resistance_export_excel, find_total_resistance_vagon, find_total_number_of_pads, \
     find_sum_length_vagons, find_sum_brutto_vagon, find_locomotiv_traction_mode, find_locomotiv_idle_mode, \
     find_total_resistance_traction, find_total_resistance_idle, find_declivity_resistance, find_curvature_resistance, \
     find_curvature_resistance_for_switch, find_outside_temperature_resistance, find_wind_capacity_resistance, \
-    find_vagons_ahead_resistance, find_railroad_condition_resistance, find_specific_idle_resistance
+    find_vagons_ahead_resistance, find_railroad_condition_resistance, find_specific_idle_resistance, get_pulling_force
 from .wind_dict import get_wind_coefficient
 
 
@@ -684,6 +686,10 @@ class CalculateResultView(APIView):
             TrainResistanceData.objects.create(**data)
             result.append(data)
 
+        # saving locomotiv and vagons total weight
+        sum_brutto_vagon = find_sum_brutto_vagon(vagons_queryset)
+        WeightModel.objects.create(locomotiv_weight=locomotiv.weigth, vagons_weight=sum_brutto_vagon, locomotiv=locomotiv)
+
         # 3 - dastur uchun codelar
 
         is_magistral = request.data.get('is_magistral')
@@ -783,6 +789,7 @@ class DeleteVagonsData(generics.DestroyAPIView):
     def delete(self, request, *args, **kwargs):
         TotalDataVagon.objects.all().delete()
         TrainResistanceData.objects.all().delete()
+        WeightModel.objects.all().delete()
         return Response({"success_message": "Muvaffaqiyatli o'chirildi!!!"})
 
 
@@ -794,3 +801,107 @@ class RailRoadSwitchList(generics.ListAPIView):
 class RailRoadCharacteristicLIstView(generics.ListAPIView):
     queryset = RailRoadCharacteristic.objects.all()
     serializer_class = RailRoadCharacteristicSerializer
+
+
+class TrainRunningDistance(generics.ListCreateAPIView, APIView):
+    serializer_class = TrainRunningDistanceSerializer
+
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
+
+        weight = WeightModel.objects.first()
+        locomotiv = weight.locomotiv
+        vagon = VagonResistanceConstant.objects.first()
+        P = weight.locomotiv_weight
+        Q = weight.vagons_weight
+        # Todo qanday topishni sorash kerak boladi
+        a = (locomotiv.value_ao * P + vagon.value_ao * Q) / (P + Q)
+        b = (locomotiv.value_bo * P + vagon.value_bo * Q) / (P + Q)
+        c = (locomotiv.value_co * P + vagon.value_co * Q) / (P + Q)
+
+        S = 0
+        Vqb = 0
+        i = 0
+        tqo = 0
+
+        Vl = 0
+        Vl1 = 0
+        # kiritiladigan o'zgarmaslar
+        Vmax = data['max_capacity']
+        Kt1 = data['Kt1']
+        Kt2 = data['Kt2']
+        for item in data['articles']:
+            # F ustun: maksimla tezlik hisobi
+            if Kt1 * float(item['declivity']) + Kt2 > Vmax:
+                Vmax = Vmax
+            else:
+                Vmax = Kt1 * float(item['declivity']) + Kt2
+
+            # G ustun: Vl ni topish
+            if Vqb % 5 < 2.5:
+                Vl = Vqb - Vqb % 5
+            else:
+                Vl = Vqb + 5 - Vqb % 5
+
+            # H ustun: Vl+1 ni topish
+            if Vl < 90:
+                Vl1 = Vl + 5
+            else:
+                Vl1 = Vl
+
+            # I ustun:
+            Fl = get_pulling_force(Vl)
+            Fl1 = get_pulling_force(Vl1)
+
+            # K ustun: Lokomotivning har bir qadamdagi ulanish kuchisiz tortish kuchi
+            Flusi = ((Vqb - Vl) * (Fl + Fl1)) / (Vl - Vl1) + Fl
+
+            # L ustun: lokomotivning har bir qadamdagi ulinish kuchiga egrilikning ta'sirini ifodalovchi koeffitsiyent
+            if item['radius'] >= 800:
+                Krfui = 800
+            else:
+                Krfui = (3.5 * item['radius']) / (400 + 3 * R)
+
+            # M ustun: Lokomotivning har bir qadamdagi, egrilikning ta'sirini hiosbga oluvchi ulanish kuchi
+            Flubi = 1000 * P * Krfui * (2.5 + 8 / (100 + 20 * Vqb))
+
+            # N ustun: lokomotivning har bir qadamdagi tortish kuchini topish
+            if Flubi < Flusi:
+                Ft = Flubi
+            else:
+                Ft = Flusi
+
+            # O ustun: har bir qadamdagi harakatga manyovr tarkibining qarshiligi
+            wi = a + b * Vqb + c * Vqb * Vqb
+
+            # P ustun: har bir qadamdagi tezlikning o'zgarishi quyidagicha topiladi
+            dV = math.sqrt(Vqb * Vqb + 0.24 * ((Flubi / (P + Q)) - wi - i) * float(item['distance'])) - Vqb
+
+            # Q ustun: Ha rbir qadam oxiridagi tezlikning qiymati
+            if Vqb + dV > Vmax:
+                Vqo = Vmax
+            else:
+                Vqo = Vqb + dV
+
+            # S ustun: har bir qadamdag vaqting o'zgarishi
+            dt = 60 * float(item['distance']) / (500 * (Vqb + Vqo))
+
+            # har bir qadam boshidagi tezlik oldingi qadam oxiridagi tezlikka teng boladi
+            Vqb = Vqo
+
+            # T ustun: Har bir qadam oxirigidagi vaqtning qiymati
+            tqo = tqo + dt
+
+            S = S + item['distance']
+
+        payload = {
+            "distnace": S,
+            "time": tqo
+        }
+        return Response(payload, status=status.HTTP_200_OK)
+
+
+
+

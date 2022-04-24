@@ -216,21 +216,23 @@ def find_locomotiv_traction_mode(locomotiv, capacity):
 
 def find_locomotiv_idle_mode(locomotiv, capacity):
     locomotiv_idle_mode = 9.81 * (locomotiv.value_aox + locomotiv.value_box * capacity +
-                                          locomotiv.value_cox * capacity * capacity)
+                                  locomotiv.value_cox * capacity * capacity)
     return locomotiv_idle_mode
 
 
 def find_total_resistance_traction(locomotiv, capacity, vagons_queryset):
     total_resistance_traction = (find_locomotiv_traction_mode(locomotiv, capacity) * locomotiv.weigth
-                                 + find_total_resistance_vagon(vagons_queryset, capacity) * find_sum_brutto_vagon(vagons_queryset)) / (
+                                 + find_total_resistance_vagon(vagons_queryset, capacity) * find_sum_brutto_vagon(
+                vagons_queryset)) / (
                                         locomotiv.weigth + find_sum_brutto_vagon(vagons_queryset))
     return total_resistance_traction
 
 
 def find_total_resistance_idle(locomotiv, capacity, vagons_queryset):
     total_resistance_idle = (find_locomotiv_idle_mode(locomotiv, capacity) * locomotiv.weigth
-                                 + find_total_resistance_vagon(vagons_queryset, capacity) * find_sum_brutto_vagon(vagons_queryset)) / (
-                                        locomotiv.weigth + find_sum_brutto_vagon(vagons_queryset))
+                             + find_total_resistance_vagon(vagons_queryset, capacity) * find_sum_brutto_vagon(
+                vagons_queryset)) / (
+                                    locomotiv.weigth + find_sum_brutto_vagon(vagons_queryset))
     return total_resistance_idle
 
 
@@ -269,7 +271,8 @@ def find_curvature_resistance_for_switch(railway_switch, locomotiv, vagons_query
 
 def find_outside_temperature_resistance(outside_temperature, locomotiv, capacity, vagons_queryset):
     if outside_temperature < -10:
-        outside_temperature_resistance = 0.004 * find_total_resistance_traction(locomotiv, capacity, vagons_queryset)  # Wnt
+        outside_temperature_resistance = 0.004 * find_total_resistance_traction(locomotiv, capacity,
+                                                                                vagons_queryset)  # Wnt
     else:
         outside_temperature_resistance = 0
     return outside_temperature_resistance
@@ -300,17 +303,39 @@ def find_railroad_condition_resistance(railway_characteristics, locomotiv, capac
         railway_characteristics = RailRoadCharacteristic.objects.get(id=railway_characteristics)
     except:
         raise ValidationError({"error_message": "Bunday id li yo'l xarakteristikasi mavjud emas!!!"})
-    railroad_condition_resistance = (railway_characteristics.coefficient - 1) * find_total_resistance_traction(locomotiv, capacity, vagons_queryset)
+    railroad_condition_resistance = (railway_characteristics.coefficient - 1) * find_total_resistance_traction(
+        locomotiv, capacity, vagons_queryset)
     return railroad_condition_resistance
 
 
 def find_specific_idle_resistance(locomotiv, capacity, vagons_queryset, declivity, R, length_curvature,
-                                  railway_switch, outside_temperature, wind_capacity, is_ahead, railway_characteristics):
-    Ws = (find_locomotiv_idle_mode(locomotiv, capacity) * locomotiv.weigth + find_total_resistance_vagon(vagons_queryset, capacity) *
+                                  railway_switch, outside_temperature, wind_capacity, is_ahead,
+                                  railway_characteristics):
+    Ws = (find_locomotiv_idle_mode(locomotiv, capacity) * locomotiv.weigth + find_total_resistance_vagon(
+        vagons_queryset, capacity) *
           find_sum_brutto_vagon(vagons_queryset))
     return Ws / (locomotiv.weigth + find_sum_brutto_vagon(vagons_queryset))
 
 
+def get_pulling_force(capacity):
+    dict = {
+        0: 55000,
+        5: 52000,
+        10: 34500,
+        15: 25500,
+        20: 19500,
+        25: 15500,
+        30: 13500,
+        35: 11500,
+        40: 10000,
+        45: 8750,
+        50: 7500,
+        60: 6000,
+        70: 5000,
+        80: 4000,
+        90: 3000
+    }
+    return dict[capacity]
 
 #      Ws = (locomotiv_idle_mode * locomotiv.weigth + total_resistance_vagon * sum_brutto_vagon + (
 #                     locomotiv.weigth + sum_brutto_vagon) *
@@ -318,11 +343,11 @@ def find_specific_idle_resistance(locomotiv, capacity, vagons_queryset, declivit
 #                    wind_capacity_resistance + Wvv + railroad_condition_resistance))
 
 
- # + (locomotiv.weigth + find_sum_brutto_vagon(vagons_queryset)) *
- #          (find_declivity_resistance(declivity) + find_curvature_resistance(R, length_curvature, locomotiv, vagons_queryset) +
- #           find_curvature_resistance_for_switch(railway_switch, locomotiv, vagons_queryset) + find_outside_temperature_resistance(outside_temperature,
- #                                                                                 locomotiv, capacity, vagons_queryset) +
- #           find_wind_capacity_resistance(wind_capacity, capacity,
- #                                         locomotiv, vagons_queryset) + find_vagons_ahead_resistance(is_ahead, declivity, locomotiv, capacity, vagons_queryset) +
- #           find_railroad_condition_resistance(railway_characteristics,
- #                                              locomotiv, capacity, vagons_queryset))
+# + (locomotiv.weigth + find_sum_brutto_vagon(vagons_queryset)) *
+#          (find_declivity_resistance(declivity) + find_curvature_resistance(R, length_curvature, locomotiv, vagons_queryset) +
+#           find_curvature_resistance_for_switch(railway_switch, locomotiv, vagons_queryset) + find_outside_temperature_resistance(outside_temperature,
+#                                                                                 locomotiv, capacity, vagons_queryset) +
+#           find_wind_capacity_resistance(wind_capacity, capacity,
+#                                         locomotiv, vagons_queryset) + find_vagons_ahead_resistance(is_ahead, declivity, locomotiv, capacity, vagons_queryset) +
+#           find_railroad_condition_resistance(railway_characteristics,
+#                                              locomotiv, capacity, vagons_queryset))
