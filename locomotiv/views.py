@@ -805,7 +805,7 @@ class RailRoadCharacteristicLIstView(generics.ListAPIView):
     serializer_class = RailRoadCharacteristicSerializer
 
 
-class TrainRunningDistance(generics.ListCreateAPIView, APIView):
+class TrainRunningDistance(generics.ListAPIView, APIView):
     serializer_class = TrainRunningDistanceSerializer
 
     def list(self, request, *args, **kwargs):
@@ -899,7 +899,7 @@ class TrainRunningDistance(generics.ListCreateAPIView, APIView):
             S = S + item['distance']
 
         payload = {
-            "distnace": S,
+            "distance": S,
             "time": tqo
         }
         return Response(payload, status=status.HTTP_200_OK)
