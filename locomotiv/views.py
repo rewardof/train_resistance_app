@@ -888,7 +888,7 @@ class TrainRunningDistance(APIView):
                 Vqo = Vqb + dV
 
             # S ustun: har bir qadamdag vaqting o'zgarishi
-            dt = 60 * float(item['distance']) / (500 * (Vqb + Vqo))
+            dt = 60 * float(item['distance']) / (500 * (float(Vqb) + float(Vqo)))
 
             # har bir qadam boshidagi tezlik oldingi qadam oxiridagi tezlikka teng boladi
             Vqb = Vqo
