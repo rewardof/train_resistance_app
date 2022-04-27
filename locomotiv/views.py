@@ -864,7 +864,7 @@ class TrainRunningDistance(APIView):
             if item['radius'] >= 800:
                 Krfui = 800
             else:
-                Krfui = (3.5 * item['radius']) / (400 + 3 * R)
+                Krfui = (3.5 * item['radius']) / (400 + 3 * item['radius'])
 
             # M ustun: Lokomotivning har bir qadamdagi, egrilikning ta'sirini hiosbga oluvchi ulanish kuchi
             Flubi = 1000 * P * Krfui * (2.5 + 8 / (100 + 20 * Vqb))
