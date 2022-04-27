@@ -805,11 +805,11 @@ class RailRoadCharacteristicLIstView(generics.ListAPIView):
     serializer_class = RailRoadCharacteristicSerializer
 
 
-class TrainRunningDistance(generics.ListAPIView, APIView):
+class TrainRunningDistance(APIView):
     serializer_class = TrainRunningDistanceSerializer
 
-    def list(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+    def post(self, request, *args, **kwargs):
+        serializer = TrainRunningDistanceSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.data
 
