@@ -814,7 +814,7 @@ class TrainRunningDistance(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.data
 
-        weight = WeightModel.objects.first()
+        weight = WeightModel.objects.last()
         locomotiv = weight.locomotiv
         vagon = VagonResistanceConstant.objects.first()
         P = weight.locomotiv_weight
