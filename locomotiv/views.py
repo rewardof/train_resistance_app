@@ -569,7 +569,7 @@ class CalculateResultView(APIView):
     # serializer_class = InputSerializer
 
     def post(self, request, find_specificc_idle_resistance=None, *args, **kwargs):
-        global Kt, i, R, length_curvature, railway_characteristics, is_ahead, vagons_queryset, wind_capacity, outside_temperature, railway_switch
+        global Kt, i, R, length_curvature, railway_characteristics, is_ahead, vagons_queryset, wind_capacity, outside_temperature, railway_switch, braking_time
         locomotiv_id = self.request.data.get('id')
         try:
             locomotiv = Locomotiv.objects.get(id=locomotiv_id)
@@ -773,6 +773,7 @@ class CalculateResultView(APIView):
 
         payload = {
             'braking_distance': round(S, 2),
+            'braking_time': round(braking_time, 1),
             'result': result
         }
 
