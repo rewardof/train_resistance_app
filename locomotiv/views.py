@@ -892,7 +892,7 @@ class TrainRunningDistance(APIView):
             dt = 60 * float(item['distance']) / (500 * (float(Vqb) + float(Vqo)))
 
             # har bir qadam boshidagi tezlik oldingi qadam oxiridagi tezlikka teng boladi
-            Vqb = Vqo
+            Vqb = float(Vqo)
 
             # T ustun: Har bir qadam oxirigidagi vaqtning qiymati
             tqo = tqo + dt
