@@ -279,7 +279,7 @@ def find_outside_temperature_resistance(outside_temperature, locomotiv, capacity
 
 
 def find_wind_capacity_resistance(wind_capacity, capacity, locomotiv, vagons_queryset):
-    if wind_capacity < 5:
+    if wind_capacity <= 5:
         wind_capacity_resistance = 0
     else:
         if wind_capacity > 35:

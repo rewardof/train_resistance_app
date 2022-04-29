@@ -836,7 +836,7 @@ class TrainRunningDistance(APIView):
         Kt1 = data['coefficient1']
         Kt2 = data['coefficient2']
         for item in data['values']:
-            # F ustun: maksimla tezlik hisobi
+            # F ustun: maksimal tezlik hisobi
             if float(Kt1) * float(item['declivity']) + float(Kt2) > Vmax:
                 Vmax = Vmax
             else:
@@ -901,7 +901,7 @@ class TrainRunningDistance(APIView):
 
         payload = {
             "distance": S,
-            "time": tqo
+            "time": round(tqo*60, 1)
         }
         return Response(payload, status=status.HTTP_200_OK)
 
