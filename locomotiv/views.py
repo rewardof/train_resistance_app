@@ -868,7 +868,7 @@ class TrainRunningDistance(APIView):
                 Krfui = (3.5 * item['radius']) / (400 + 3 * item['radius'])
 
             # M ustun: Lokomotivning har bir qadamdagi, egrilikning ta'sirini hiosbga oluvchi ulanish kuchi
-            Flubi = 1000 * P * Krfui * (2.5 + 8 / (100 + 20 * Vqb))
+            Flubi = 1000 * P * Krfui * (2.5 + 8 / (100 + 20 * float(Vqb)))
 
             # N ustun: lokomotivning har bir qadamdagi tortish kuchini topish
             if Flubi < Flusi:
