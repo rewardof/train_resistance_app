@@ -900,7 +900,7 @@ class TrainRunningDistance(APIView):
             S = S + item['distance']
 
         payload = {
-            "distance": S,
+            "distance": round(S, 2),
             "time": round(tqo*60, 1)
         }
         return Response(payload, status=status.HTTP_200_OK)
