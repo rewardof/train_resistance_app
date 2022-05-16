@@ -831,6 +831,10 @@ class TrainRunningDistance(APIView):
 
         Vl = 0
         Vl1 = 0
+
+        # yoqilgi miqdori
+        Yt_um = 0
+
         # kiritiladigan o'zgarmaslar
         Vmax = data['max_capacity']
         Kt1 = data['coefficient1']
@@ -894,12 +898,30 @@ class TrainRunningDistance(APIView):
             # har bir qadam boshidagi tezlik oldingi qadam oxiridagi tezlikka teng boladi
             Vqb = float(Vqo)
 
+            # yoqilgi hisobi
+            Vavg = float((float(Vqb) + float(Vqo)) / 2)
+            print('avg', Vavg)
+
+            # tezlikka qarab ozgarmas yoqilgi miqdori
+            if Vavg > 20:
+                Ymiqdori = 203
+            else:
+                Ymiqdori = 11.5
+            print('Ymiqdori', Ymiqdori)
+
+            # yoqilgi miqdori
+            print("delta time", dt)
+            Yt = float(Ymiqdori * dt / 60)
+            print("Yt", Yt)
+            Yt_um = Yt_um + Yt
+
             # T ustun: Har bir qadam oxirigidagi vaqtning qiymati
             tqo = tqo + dt
 
             S = S + item['distance']
 
         payload = {
+            "dizel": round(Yt_um, 2),
             "distance": round(S, 2),
             "time": round(tqo*60, 1)
         }
