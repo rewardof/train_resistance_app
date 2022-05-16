@@ -892,6 +892,12 @@ class TrainRunningDistance(APIView):
             else:
                 Vqo = Vqb + dV
 
+            # S ustun: har bir qadamdag vaqting o'zgarishi
+            dt = 60 * float(item['distance']) / (500 * (float(Vqb) + float(Vqo)))
+
+            # har bir qadam boshidagi tezlik oldingi qadam oxiridagi tezlikka teng boladi
+            Vqb = float(Vqo)
+
             # yoqilgi hisobi
             Vavg = float((Vqb + Vqo) / 2)
 
@@ -901,16 +907,10 @@ class TrainRunningDistance(APIView):
             else:
                 Ymiqdori = 11.5
 
-            # S ustun: har bir qadamdag vaqting o'zgarishi
-            dt = 60 * float(item['distance']) / (500 * (float(Vqb) + float(Vqo)))
-
             # yoqilgi miqdori
             Yt = float(Ymiqdori * dt / 60)
 
             Yt_um = Yt_um + Yt
-
-            # har bir qadam boshidagi tezlik oldingi qadam oxiridagi tezlikka teng boladi
-            Vqb = float(Vqo)
 
             # T ustun: Har bir qadam oxirigidagi vaqtning qiymati
             tqo = tqo + dt
