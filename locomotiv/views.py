@@ -899,20 +899,17 @@ class TrainRunningDistance(APIView):
             Vqb = float(Vqo)
 
             # yoqilgi hisobi
-            Vavg = float((float(Vqb) + float(Vqo)) / 2)
-            print('avg', Vavg)
+            Vavg = float((Vqb + Vqo) / 2)
 
             # tezlikka qarab ozgarmas yoqilgi miqdori
             if Vavg > 20:
                 Ymiqdori = 203
             else:
                 Ymiqdori = 11.5
-            print('Ymiqdori', Ymiqdori)
 
             # yoqilgi miqdori
-            print("delta time", dt)
             Yt = float(Ymiqdori * dt / 60)
-            print("Yt", Yt)
+
             Yt_um = Yt_um + Yt
 
             # T ustun: Har bir qadam oxirigidagi vaqtning qiymati
