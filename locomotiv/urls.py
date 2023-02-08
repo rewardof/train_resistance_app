@@ -7,6 +7,7 @@ from .utils import vagon_data_excel
 
 urlpatterns = [
     path('number/', views.VagonDataListView.as_view(), name='number'),
+    path('number/upload/', views.UploadVagonNumberDataView.as_view(), name='upload-data-file'),
     path('locomotivs/', views.LocomotivListListView.as_view(), name='locomotiv-list'),
     path('result/', views.CalculateResultView.as_view(), name='calculate-result_view'),
     path('vagons-list/', views.VagonDataList.as_view(), name='vagons-list'),

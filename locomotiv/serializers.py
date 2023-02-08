@@ -85,3 +85,9 @@ class TrainRunningDistanceSerializer(serializers.Serializer):
     coefficient1 = serializers.DecimalField(decimal_places=3, max_digits=6, coerce_to_string=False)
     coefficient2 = serializers.DecimalField(decimal_places=3, max_digits=6, coerce_to_string=False)
 
+
+class UploadVagonNumberSerializer(serializers.Serializer):
+    file = serializers.FileField()
+
+
+

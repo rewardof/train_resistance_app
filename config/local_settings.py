@@ -3,7 +3,7 @@
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'tra_db',
 #         'USER': 'postgres',
-#         'PASSWORD': '0000',
+#         'PASSWORD': '1040',
 #         'HOST': 'localhost',
 #         'PORT': '5432'
 #     }
