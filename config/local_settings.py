@@ -1,3 +1,5 @@
+from .settings import *
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -8,3 +10,9 @@
 #         'PORT': '5432'
 #     }
 # }
+
+DEBUG = True
+
+ALLOWED_HOSTS = ['*']
+
+SECRET_KEY = 'django-insecure-f%v$&$h70+&ful*6dd=@$o=44e*dt=hcgs+)f-1u3#8#@)2@1)'
