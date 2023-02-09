@@ -29,7 +29,7 @@ SECRET_KEY = str(os.getenv('SECRET_KEY'))
 DEBUG = os.getenv('DEBUG', False)
 
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['rewardof.pythonanywhere.com']
 
 
 # Application definition
