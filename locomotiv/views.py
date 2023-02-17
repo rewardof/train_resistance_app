@@ -32,7 +32,7 @@ class VagonDataListView(generics.CreateAPIView):
         serializer = NumberSerializer(data=self.request.POST)
         serializer.is_valid(raise_exception=True)
         number = serializer.data['number']
-        if number[0] == 0 or 1:
+        if number[0] == '0' or number[0] == '1':
             return Response({"error_message": "Vagon raqami 0 yoki 1 bilan boshlanmasligi kerak"},
                             status=status.HTTP_400_BAD_REQUEST)
         load_weight = serializer.data['load_weight']
