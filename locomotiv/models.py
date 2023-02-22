@@ -1,5 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from utils.constants import CONSTANTS
 
 
 class Locomotiv(models.Model):
@@ -36,6 +37,7 @@ class Locomotiv(models.Model):
 
 class TotalDataVagon(models.Model):
     number_vagon = models.IntegerField("Vagon raqami")
+    vagon_type = models.CharField(choices=CONSTANTS.VAGON_TYPE.CHOICES, max_length=8, null=True)
     load_weight = models.FloatField("Yuk og'irligi")
     number_of_arrow = models.SmallIntegerField("O'qlar soni")
     netto_vagon = models.FloatField("Vagon og'irligi")

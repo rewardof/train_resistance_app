@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from locomotiv.models import TotalDataVagon, TrainResistanceData, VagonResistanceConstant, RailwaySwitchMark, \
     RailRoadCharacteristic
 from locomotiv.wind_dict import get_wind_coefficient
+from utils.constants import CONSTANTS
 
 
 def get_vagon_data(number, load_weight):
@@ -19,6 +20,7 @@ def get_vagon_data(number, load_weight):
     netto_vagon = 0
     length_vagon = 0
     if first == 2:
+        vagon_type = CONSTANTS.VAGON_TYPE.KR
         if second == 0:
             number_of_arrow = 4
             netto_vagon = 24.2
@@ -44,6 +46,7 @@ def get_vagon_data(number, load_weight):
             netto_vagon = 29
             length_vagon = 18.8
     elif first == 3:
+        vagon_type = CONSTANTS.VAGON_TYPE.PR
         if second == 0:
             if third in range(0, 5):
                 number_of_arrow = 4
@@ -143,6 +146,7 @@ def get_vagon_data(number, load_weight):
             netto_vagon = 85.5
             length_vagon = 22.45
     elif first == 4:
+        vagon_type = CONSTANTS.VAGON_TYPE.PL
         if second == 0:
             number_of_arrow = 4
             netto_vagon = 22
@@ -155,7 +159,61 @@ def get_vagon_data(number, load_weight):
             number_of_arrow = 8
             netto_vagon = 26.4
             length_vagon = 19.84
+    elif first == 5:
+        if second in range(2):
+            number_of_arrow = 4
+            netto_vagon = 24.2
+            length_vagon = 14.41
+            vagon_type = CONSTANTS.VAGON_TYPE.SYS
+        elif second == 2:
+            number_of_arrow = 4
+            netto_vagon = 24
+            length_vagon = 14.73
+            vagon_type = CONSTANTS.VAGON_TYPE.KR
+
+        elif second == 3:
+            number_of_arrow = 4
+            netto_vagon = 22
+            length_vagon = 14.72
+            vagon_type = CONSTANTS.VAGON_TYPE.XP
+
+        elif second == 4:
+            number_of_arrow = 4
+            netto_vagon = 22
+            length_vagon = 14.91
+            vagon_type = CONSTANTS.VAGON_TYPE.PL
+
+        elif second == 5:
+            number_of_arrow = 4
+            netto_vagon = 22
+            length_vagon = 14.72
+            vagon_type = CONSTANTS.VAGON_TYPE.PR
+
+        elif second == 6:
+            number_of_arrow = 4
+            netto_vagon = 24
+            length_vagon = 14.41
+            vagon_type = CONSTANTS.VAGON_TYPE.PV
+
+        elif second == 7:
+            number_of_arrow = 4
+            netto_vagon = 24.2
+            length_vagon = 14.02
+            vagon_type = CONSTANTS.VAGON_TYPE.SYS
+
+        elif second == 8:
+            number_of_arrow = 4
+            netto_vagon = 32
+            length_vagon = 14.73
+            vagon_type = CONSTANTS.VAGON_TYPE.RF
+
+        elif second == 9:
+            number_of_arrow = 4
+            netto_vagon = 26
+            length_vagon = 15.35
+            vagon_type = CONSTANTS.VAGON_TYPE.PR
     elif first == 6:
+        vagon_type = CONSTANTS.VAGON_TYPE.PV
         if second in range(8):
             number_of_arrow = 4
             netto_vagon = 24
@@ -169,6 +227,7 @@ def get_vagon_data(number, load_weight):
             netto_vagon = 44.5
             length_vagon = 20.24
     elif first == 7:
+        vagon_type = CONSTANTS.VAGON_TYPE.SYS
         if second == 0:
             if third == 0:
                 number_of_arrow = 4
@@ -279,6 +338,7 @@ def get_vagon_data(number, load_weight):
                 netto_vagon = 51
                 length_vagon = 21.25
     elif first == 8:
+        vagon_type = CONSTANTS.VAGON_TYPE.RF
         if second == 0:
             number_of_arrow = 4
             netto_vagon = 33.5
@@ -344,6 +404,7 @@ def get_vagon_data(number, load_weight):
             netto_vagon = 67.7
             length_vagon = 24.73
     elif first == 9:
+        vagon_type = CONSTANTS.VAGON_TYPE.PR
         if second == 0:
             if third == 0:
                 number_of_arrow = 4
@@ -420,6 +481,7 @@ def get_vagon_data(number, load_weight):
                 netto_vagon = 24.6
                 length_vagon = 12.02
         elif second == 3:
+            vagon_type = CONSTANTS.VAGON_TYPE.XP
             if third in range(7):
                 number_of_arrow = 4
                 netto_vagon = 22.00
@@ -429,6 +491,7 @@ def get_vagon_data(number, load_weight):
                 netto_vagon = 22.00
                 length_vagon = 12.12
         elif second == 4:
+            vagon_type = CONSTANTS.VAGON_TYPE.PL
             if third == 0 or 1:
                 number_of_arrow = 4
                 netto_vagon = 26.00
@@ -446,10 +509,12 @@ def get_vagon_data(number, load_weight):
                 netto_vagon = 24.2
                 length_vagon = 25.62
         elif second == 5:
+            vagon_type = CONSTANTS.VAGON_TYPE.XP
             number_of_arrow = 4
             netto_vagon = 20.4
             length_vagon = 14.62
         elif second == 6:
+            vagon_type = CONSTANTS.VAGON_TYPE.SYS
             if third == 0:
                 number_of_arrow = 4
                 netto_vagon = 22.00
@@ -471,26 +536,32 @@ def get_vagon_data(number, load_weight):
                 netto_vagon = 25.4
                 length_vagon = 14.73
             elif third == 5:
+                vagon_type = CONSTANTS.VAGON_TYPE.XP
                 number_of_arrow = 4
                 netto_vagon = 25.6
                 length_vagon = 18.08
             elif third == 6:
+                vagon_type = CONSTANTS.VAGON_TYPE.XP
                 number_of_arrow = 4
                 netto_vagon = 30.00
                 length_vagon = 14.62
             elif third == 7:
+                vagon_type = CONSTANTS.VAGON_TYPE.XP
                 number_of_arrow = 4
                 netto_vagon = 33.8
                 length_vagon = 17.48
             elif third == 8:
+                vagon_type = CONSTANTS.VAGON_TYPE.XP
                 number_of_arrow = 4
                 netto_vagon = 25.5
                 length_vagon = 12.02
             else:
+                vagon_type = CONSTANTS.VAGON_TYPE.XP
                 number_of_arrow = 4
                 netto_vagon = 22.00
                 length_vagon = 12.02
         elif second == 7:
+            vagon_type = CONSTANTS.VAGON_TYPE.XP
             if third == 0:
                 number_of_arrow = 4
                 netto_vagon = 31.3
@@ -504,10 +575,12 @@ def get_vagon_data(number, load_weight):
                 netto_vagon = 25.00
                 length_vagon = 12.22
         elif second == 8:
+            vagon_type = CONSTANTS.VAGON_TYPE.XP
             number_of_arrow = 4
             netto_vagon = 25.00
             length_vagon = 12.22
         else:
+            vagon_type = CONSTANTS.VAGON_TYPE.XP
             number_of_arrow = 8
             netto_vagon = 54.4
             length_vagon = 23.4
@@ -518,6 +591,7 @@ def get_vagon_data(number, load_weight):
     bullet_weight = total_weight / number_of_arrow
     data = {
         "number_vagon": number,
+        'vagon_type': vagon_type,
         'load_weight': round(load_weight, 2),
         "number_of_arrow": number_of_arrow,
         "netto_vagon": netto_vagon,

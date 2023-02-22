@@ -35,7 +35,7 @@ class NumberSerializer(serializers.Serializer):
 class TotalDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = TotalDataVagon
-        fields = ['id', 'number_vagon', 'load_weight', 'number_of_arrow', 'netto_vagon', 'length_vagon', 'total_weight',
+        fields = ['id', 'number_vagon', 'vagon_type', 'load_weight', 'number_of_arrow', 'netto_vagon', 'length_vagon', 'total_weight',
                   'bullet_weight']
 
     def create(self, validated_data):
