@@ -89,10 +89,7 @@ DATABASES = {
         "PASSWORD": os.getenv("DB_PASSWORD", "0000"),
         "HOST": os.getenv("HOST", "localhost"),
         "PORT": os.getenv("PORT", "5432"),
-        'ATOMIC_REQUESTS': True,
-        "OPTIONS": {
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-            }
+        'ATOMIC_REQUESTS': True
     }
 }
 
