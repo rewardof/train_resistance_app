@@ -83,13 +83,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.getenv("DATABASE", os.path.join(BASE_DIR)),
-        "USER": os.getenv("DB_USER", "postgres"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "0000"),
-        "HOST": os.getenv("HOST", "localhost"),
-        "PORT": os.getenv("PORT", "5432"),
-        'ATOMIC_REQUESTS': True
+        "ENGINE": 'django.db.backends.mysql',
+        "NAME": 'rewardof$default',
+        "USER": 'rewardof',
+        "PASSWORD": 'HbSjW_7rKNhaZA4',
+        "HOST": 'rewardof.mysql.pythonanywhere-services.com',
+        "PORT": 3306,
+        'ATOMIC_REQUESTS': True,
+        "OPTIONS": {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+            }
     }
 }
 
