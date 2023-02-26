@@ -42,7 +42,7 @@ def get_vagon_data(number, load_weight):
             netto_vagon = 27
             length_vagon = 17.64
         elif second == 9:
-            number_of_arrow = 8
+            number_of_arrow = 4
             netto_vagon = 29
             length_vagon = 18.8
     elif first == 3:
@@ -156,7 +156,7 @@ def get_vagon_data(number, load_weight):
             netto_vagon = 20.9
             length_vagon = 14.62
         else:
-            number_of_arrow = 8
+            number_of_arrow = 4
             netto_vagon = 26.4
             length_vagon = 19.84
     elif first == 5:
