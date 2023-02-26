@@ -714,7 +714,7 @@ def vagon_data_excel(request):
     font_style.alignment = alignment
     font_style.pattern = pattern
 
-    columns = ['№', 'Vagon raqami', "Yuk og'irligi", "Vagon og'irligi", "Vagon uzunligi", "O'qlar soni",
+    columns = ['№', 'Vagon raqami', "Vagon turi", "Yuk og'irligi", "Vagon og'irligi", "Vagon uzunligi", "O'qlar soni",
                "Umumiy og'irlik", "O'qqa tushadigan og'irlik"]
 
     for col_num in range(len(columns)):
@@ -733,17 +733,19 @@ def vagon_data_excel(request):
     ws.col(5).width = 4000
     ws.col(6).width = 4000
     ws.col(7).width = 4000
+    ws.col(8).width = 4000
 
     for instance in queryset:
         row_num += 1
         ws.write(row_num, 0, row_num, font_style)
         ws.write(row_num, 1, instance.number_vagon, font_style)
-        ws.write(row_num, 2, instance.load_weight, font_style)
-        ws.write(row_num, 3, instance.netto_vagon, font_style)
-        ws.write(row_num, 4, instance.length_vagon, font_style)
-        ws.write(row_num, 5, instance.number_of_arrow, font_style)
-        ws.write(row_num, 6, instance.total_weight, font_style)
-        ws.write(row_num, 7, instance.bullet_weight, font_style)
+        ws.write(row_num, 2, instance.vagon_type, font_style)
+        ws.write(row_num, 3, instance.load_weight, font_style)
+        ws.write(row_num, 4, instance.netto_vagon, font_style)
+        ws.write(row_num, 5, instance.length_vagon, font_style)
+        ws.write(row_num, 6, instance.number_of_arrow, font_style)
+        ws.write(row_num, 7, instance.total_weight, font_style)
+        ws.write(row_num, 8, instance.bullet_weight, font_style)
     wb.save(response)
     return response
 
