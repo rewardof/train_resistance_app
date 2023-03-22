@@ -1,6 +1,7 @@
 import math
 
 import openpyxl as openpyxl
+from django.db.models import Sum
 from rest_framework.response import Response
 from rest_framework import generics, status
 from rest_framework.views import APIView
@@ -10,12 +11,8 @@ from locomotiv.models import Locomotiv, TotalDataVagon, VagonResistanceConstant,
 from locomotiv.serializers import NumberSerializer, LocomotivSerializer, TotalDataSerializer, InputDataSerializer, \
     InputSerializer, RailRoadSwitchSerializer, RailRoadCharacteristicSerializer, TrainRunningDistanceSerializer, \
     UploadVagonNumberSerializer
-from locomotiv.utils import resistance_export_excel, find_total_resistance_vagon, find_total_number_of_pads, \
-    find_sum_length_vagons, find_sum_brutto_vagon, find_locomotiv_traction_mode, find_locomotiv_idle_mode, \
-    find_total_resistance_traction, find_total_resistance_idle, find_declivity_resistance, find_curvature_resistance, \
-    find_curvature_resistance_for_switch, find_outside_temperature_resistance, find_wind_capacity_resistance, \
-    find_vagons_ahead_resistance, find_railroad_condition_resistance, find_specific_idle_resistance, get_pulling_force, \
-    get_vagon_data
+from locomotiv.utils import get_vagon_data
+from .usecases import UseCases
 from .wind_dict import get_wind_coefficient
 
 
@@ -96,6 +93,54 @@ class UploadVagonNumberDataView(generics.GenericAPIView):
             serializer.save()
 
         return Response('ok')
+
+
+class NewAppCalculatingResistanceAPIVIew(generics.ListAPIView):
+    queryset = TotalDataVagon.objects.all()
+
+    def get(self, request):
+        """
+        bu method, NEW APP uchun vagonlarni
+        guruhlash, shu guruhlar bo'yicha qarshiliklarni
+        aniqlash uchun ishlatiladi
+        """
+        vagons = self.get_queryset()
+        vagons_group_data = UseCases.making_vagon_groups(vagons)
+        for _, vagons_data in vagons_group_data.items():
+            # umumiy o'qlar soni
+            vagons_data['total_arrows'] = self.queryset.filter(
+                id__in=vagons_data['vagons_ids']).aggregate(total_weight=Sum('number_of_arrow'))['total_weight']
+
+            # umumiy vagonlar soniga nisbatan ulushi
+            vagons_data['percentage'] = round(vagons_data['count'] / self.queryset.count(), 3)
+
+            # guruhdagi vagonlarni umumiy og'irligi(yuk bilan)
+            vagons_data['total_weight'] = self.queryset.filter(
+                id__in=vagons_data['vagons_ids']).aggregate(total_weight=Sum('total_weight'))['total_weight']
+
+            # o'qqa tushadigan og'irlik
+            if vagons_data['count'] == 0:
+                vagons_data['bullet_weight'] = 0
+            else:
+                vagons_data['bullet_weight'] = round(vagons_data['total_weight'] / vagons_data['total_arrows'], 2)
+
+        data = []
+        for capacity in range(1, 81):
+            data.append(
+                {
+                    "capacity": capacity,
+                    "group_1_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_1']['bullet_weight']),
+                    "group_2_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_2']['bullet_weight']),
+                    "group_3_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_3']['bullet_weight']),
+                    "group_4_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_4']['bullet_weight']),
+                    "group_5_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_5']['bullet_weight']),
+                    "group_6_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_6']['bullet_weight']),
+                }
+            )
+        return Response({
+            "vagons_group_data": vagons_group_data,
+            "resistances": data
+        })
 
 
 class LocomotivListListView(generics.ListAPIView):

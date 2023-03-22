@@ -1,4 +1,5 @@
 class CONSTANTS:
+
     class VAGON_TYPE:
         KR = 'kr'
         PR = 'pr'
