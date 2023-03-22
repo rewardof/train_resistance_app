@@ -106,36 +106,12 @@ class NewAppCalculatingResistanceAPIVIew(generics.ListAPIView):
         """
         vagons = self.get_queryset()
         vagons_group_data = UseCases.making_vagon_groups(vagons)
-        for _, vagons_data in vagons_group_data.items():
-            # umumiy o'qlar soni
-            vagons_data['total_arrows'] = self.queryset.filter(
-                id__in=vagons_data['vagons_ids']).aggregate(total_weight=Sum('number_of_arrow'))['total_weight']
-
-            # umumiy vagonlar soniga nisbatan ulushi
-            vagons_data['percentage'] = round(vagons_data['count'] / self.queryset.count(), 3)
-
-            # guruhdagi vagonlarni umumiy og'irligi(yuk bilan)
-            vagons_data['total_weight'] = self.queryset.filter(
-                id__in=vagons_data['vagons_ids']).aggregate(total_weight=Sum('total_weight'))['total_weight']
-
-            # o'qqa tushadigan og'irlik
-            if vagons_data['count'] == 0:
-                vagons_data['bullet_weight'] = 0
-            else:
-                vagons_data['bullet_weight'] = round(vagons_data['total_weight'] / vagons_data['total_arrows'], 2)
 
         data = []
         for capacity in range(1, 81):
+            resistances_in_capacity = UseCases.calculate_resistance_for_all_groups(capacity, vagons_group_data)
             data.append(
-                {
-                    "capacity": capacity,
-                    "group_1_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_1']['bullet_weight']),
-                    "group_2_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_2']['bullet_weight']),
-                    "group_3_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_3']['bullet_weight']),
-                    "group_4_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_4']['bullet_weight']),
-                    "group_5_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_5']['bullet_weight']),
-                    "group_6_resistance": UseCases.specific_resistance_for_group_one(capacity, vagons_group_data['group_6']['bullet_weight']),
-                }
+                resistances_in_capacity
             )
         return Response({
             "vagons_group_data": vagons_group_data,
