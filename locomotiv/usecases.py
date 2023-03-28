@@ -174,8 +174,9 @@ class UseCases:
             vagons_data['percentage'] = round(vagons_data['count'] / totol_number_vagons, 3)
 
             # guruhdagi vagonlarni umumiy og'irligi(yuk bilan)
-            vagons_data['total_weight'] = round(vagons.filter(
-                id__in=vagons_data['vagons_ids']).aggregate(total_weight=Sum('total_weight'))['total_weight'])
+             total_weight = vagons.filter(
+                id__in=vagons_data['vagons_ids']).aggregate(total_weight=Sum('total_weight'))['total_weight']
+             vagons_data['total_weight'] = round(total_weight, 2) if total_weight else 0
 
             # o'qqa tushadigan og'irlik
             if vagons_data['count'] == 0:
