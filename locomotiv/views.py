@@ -106,7 +106,6 @@ class NewAppCalculatingResistanceAPIVIew(generics.ListAPIView):
         """
         vagons = self.get_queryset()
         vagons_group_data = UseCases.making_vagon_groups(vagons)
-
         data = []
         for capacity in range(1, 81):
             resistances_in_capacity = UseCases.calculate_resistance_for_all_groups(capacity, vagons_group_data)
