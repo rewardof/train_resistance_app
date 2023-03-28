@@ -167,8 +167,9 @@ class UseCases:
         totol_number_vagons = vagons.count()
         for _, vagons_data in vagons_group_data.items():
             # umumiy o'qlar soni
-            vagons_data['total_arrows'] = vagons.filter(
+            total_arrows = vagons.filter(
                 id__in=vagons_data['vagons_ids']).aggregate(total_weight=Sum('number_of_arrow'))['total_weight']
+            vagons_data['total_arrows'] = total_arrows if total_arrows else 0
 
             # umumiy vagonlar soniga nisbatan ulushi
             vagons_data['percentage'] = round(vagons_data['count'] / totol_number_vagons, 3)
