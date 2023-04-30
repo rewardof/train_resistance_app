@@ -653,3 +653,10 @@ def vagon_data_excel(request):
         ws.write(row_num, 8, instance.bullet_weight, font_style)
     wb.save(response)
     return response
+
+
+def is_true(value):
+    if value in ['true', 'True', 'TRUE', '1', 1, True]:
+        return True
+    elif value in ['false', 'False', 'FALSE', '0', 0, False]:
+        return False

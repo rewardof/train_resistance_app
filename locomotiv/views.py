@@ -11,9 +11,8 @@ from locomotiv.models import Locomotiv, TotalDataVagon, VagonResistanceConstant,
 from locomotiv.serializers import NumberSerializer, LocomotivSerializer, TotalDataSerializer, InputDataSerializer, \
     InputSerializer, RailRoadSwitchSerializer, RailRoadCharacteristicSerializer, TrainRunningDistanceSerializer, \
     UploadVagonNumberSerializer
-from locomotiv.utils import get_vagon_data
+from locomotiv.utils import get_vagon_data, is_true
 from .usecases import UseCases
-from .wind_dict import get_wind_coefficient
 
 
 class VagonDataListView(generics.CreateAPIView):
@@ -98,17 +97,20 @@ class UploadVagonNumberDataView(generics.GenericAPIView):
 class NewAppCalculatingResistanceAPIVIew(generics.ListAPIView):
     queryset = TotalDataVagon.objects.all()
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         """
         bu method, NEW APP uchun vagonlarni
         guruhlash, shu guruhlar bo'yicha qarshiliklarni
         aniqlash uchun ishlatiladi
         """
+        articulated_road = is_true(self.request.query_params.get('articulated_road', True))
         vagons = self.get_queryset()
         vagons_group_data = UseCases.making_vagon_groups(vagons)
         data = []
         for capacity in range(1, 81):
-            resistances_in_capacity = UseCases.calculate_resistance_for_all_groups(capacity, vagons_group_data)
+            resistances_in_capacity = UseCases.calculate_resistance_for_all_groups(
+                capacity, vagons_group_data, articulated_road
+            )
             data.append(
                 resistances_in_capacity
             )

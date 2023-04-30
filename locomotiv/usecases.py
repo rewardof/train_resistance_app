@@ -63,85 +63,121 @@ class UseCases:
         return total_data
 
     @staticmethod
-    def specific_resistance_for_group_one(capacity: int, bullet_weight: float):
+    def specific_resistance_for_group_one(capacity: int, bullet_weight: float, articulated_road: bool = True):
         """
         yuklangan, 4 o'qli, 'pv' vagonlar uchun
         solishtirma qarshilik
         """
-        if bullet_weight > 0:
+        if bullet_weight <= 0:
+            return 0
+
+        if articulated_road:
             w = 0.53 + (3.6 + 0.08 * capacity + 0.00275 * capacity * capacity) / bullet_weight
-            return round(w, 2)
-        return 0
+        else:
+            w = 0.53 + (3.49 + 0.0746 * capacity + 0.00224 * capacity * capacity) / bullet_weight
+        return round(w, 2)
 
     @staticmethod
-    def specific_resistance_for_group_two(capacity: int, bullet_weight: float):
+    def specific_resistance_for_group_two(capacity: int, bullet_weight: float, articulated_road: bool = True):
         """
         yuklangan, 4 o'qli, 'sys' vagonlar uchun
         solishtirma qarshilik
         """
-        if bullet_weight > 0:
+        if bullet_weight <= 0:
+            return 0
+
+        if articulated_road:
             w = 0.642 + (2.925 + 0.0473 * capacity + 0.00275 * capacity * capacity) / bullet_weight
-            return round(w, 2)
-        return 0
+        else:
+            w = 0.642 + (2.844 + 0.0444 * capacity + 0.00224 * capacity * capacity) / bullet_weight
+        return round(w, 2)
 
     @staticmethod
-    def specific_resistance_for_group_three(capacity: int, bullet_weight: float):
+    def specific_resistance_for_group_three(capacity: int, bullet_weight: float, articulated_road: bool = True):
         """
         yuklangan, 4 o'qli, 'kr', 'pl', 'xp', 'pr' vagonlar uchun
         solishtirma qarshilik
         """
-        if bullet_weight > 0:
+        if bullet_weight <= 0:
+            return 0
+
+        if articulated_road:
             w = 0.7 + (3 + 0.1 * capacity + 0.0025 * capacity * capacity) / bullet_weight
-            return round(w, 2)
-        return 0
+        else:
+            w = 0.7 + (3 + 0.09 * capacity + 0.002 * capacity * capacity) / bullet_weight
+        return round(w, 2)
 
     @staticmethod
-    def specific_resistance_for_group_four(capacity: int, bullet_weight: float):
+    def specific_resistance_for_group_four(capacity: int, bullet_weight: float, articulated_road: bool = True):
         """
         yuklangan, 4 o'qli, q > 6, 'kr', 'pl', 'xp', 'pr' vagonlar uchun
         solishtirma qarshilik
         """
-        if bullet_weight > 0:
+        if bullet_weight <= 0:
+            return 0
+
+        if articulated_road:
             w = 1 + 0.044 * capacity + 0.00024 * capacity * capacity
-            return round(w, 2)
-        return 0
+        else:
+            w = 1 + 0.042 * capacity + 0.00016 * capacity * capacity
+        return round(w, 2)
 
     @staticmethod
-    def specific_resistance_for_group_five(capacity: int, bullet_weight: float):
+    def specific_resistance_for_group_five(capacity: int, bullet_weight: float, articulated_road: bool = True):
         """
         8 o'qli barcha vagonlar uchun
         """
-        if bullet_weight > 0:
+        if bullet_weight <= 0:
+            return 0
+
+        if articulated_road:
             w = 0.7 + (6 + 0.0377 * capacity + 0.00214 * capacity * capacity) / bullet_weight
-            return round(w, 2)
-        return 0
+        else:
+            w = 0.7 + (6 + 0.0265 * capacity + 0.00173 * capacity * capacity) / bullet_weight
+        return round(w, 2)
 
     @staticmethod
-    def specific_resistance_for_group_six(capacity: int, bullet_weight: float):
+    def specific_resistance_for_group_six(capacity: int, bullet_weight: float, articulated_road: bool = True):
         """
         yuklanmagan, 4 va 8 o'qli barcha vagonlar uchun yoki
         yuklangan, 4 o'qli, 'rf' vagonlar uchun
         solishtirma qarshilik
         """
-        if bullet_weight > 0:
+        if bullet_weight <= 0:
+            return 0
+
+        if articulated_road:
             w = 0.68 + (3 + 0.1 * capacity + 0.00255 * capacity * capacity) / bullet_weight
-            return round(w, 2)
-        return 0
+        else:
+            w = 0.7 + (3 + 0.0897 * capacity + 0.00204 * capacity * capacity) / bullet_weight
+        return round(w, 2)
 
     @classmethod
-    def calculate_resistance_for_all_groups(cls, capacity: int, vagons_group_data: dict):
-        group_1_resistance = cls.specific_resistance_for_group_one(capacity,
-                                                                   vagons_group_data['group_1']['bullet_weight'])
-        group_2_resistance = cls.specific_resistance_for_group_one(capacity,
-                                                                   vagons_group_data['group_2']['bullet_weight'])
-        group_3_resistance = cls.specific_resistance_for_group_one(capacity,
-                                                                   vagons_group_data['group_3']['bullet_weight'])
-        group_4_resistance = cls.specific_resistance_for_group_one(capacity,
-                                                                   vagons_group_data['group_4']['bullet_weight'])
-        group_5_resistance = cls.specific_resistance_for_group_one(capacity,
-                                                                   vagons_group_data['group_5']['bullet_weight'])
-        group_6_resistance = cls.specific_resistance_for_group_one(capacity,
-                                                                   vagons_group_data['group_6']['bullet_weight'])
+    def calculate_resistance_for_all_groups(cls, capacity: int, vagons_group_data: dict, articulated_road: bool = True):
+        group_1_resistance = cls.specific_resistance_for_group_one(
+            capacity, vagons_group_data['group_1']['bullet_weight'],
+            articulated_road
+        )
+        group_2_resistance = cls.specific_resistance_for_group_two(
+            capacity, vagons_group_data['group_2']['bullet_weight'],
+            articulated_road
+        )
+        group_3_resistance = cls.specific_resistance_for_group_three(
+            capacity, vagons_group_data['group_3']['bullet_weight'],
+            articulated_road
+        )
+        group_4_resistance = cls.specific_resistance_for_group_four(
+            capacity, vagons_group_data['group_4']['bullet_weight'],
+            articulated_road
+        )
+        group_5_resistance = cls.specific_resistance_for_group_five(
+            capacity, vagons_group_data['group_5']['bullet_weight'],
+            articulated_road
+        )
+        group_6_resistance = cls.specific_resistance_for_group_six(
+            capacity, vagons_group_data['group_6']['bullet_weight'],
+            articulated_road
+        )
         total_resistance = round(
             group_1_resistance * vagons_group_data['group_1']['percentage'] + \
             group_2_resistance * vagons_group_data['group_2']['percentage'] + \
