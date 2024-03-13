@@ -40,9 +40,12 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'rest_framework',
-    'locomotiv',
     'django_filters',
-    'corsheaders'
+    'corsheaders',
+
+    # my apps
+    'locomotiv',
+    'station',
 ]
 
 MIDDLEWARE = [

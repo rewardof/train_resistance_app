@@ -18,3 +18,12 @@ class CONSTANTS:
             (PV, PV),
             (RF, RF),
         )
+
+    class ROAD_TYPE:
+        MAIN = 'main'
+        SORTING_ROAD = 'sorting_road'
+
+        CHOICES = (
+            (MAIN, MAIN),
+            (SORTING_ROAD, SORTING_ROAD),
+        )

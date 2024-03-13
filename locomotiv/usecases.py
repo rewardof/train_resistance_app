@@ -1,5 +1,6 @@
 from django.db.models import QuerySet
 from django.db.models import Sum
+
 from utils.constants import CONSTANTS
 
 
